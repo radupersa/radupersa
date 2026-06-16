@@ -2,24 +2,48 @@
 """
 Raport Sanatate Generator
 Intrari:  data/corp.csv  · data/nutritie.csv  · data/activitati.json
+          data/fit/*.fit  (optional — se combina automat cu activitati.json)
 Iesire:   raport.html
 
 Ruleaza:  python3 generate.py
 """
 
 import csv, json, math, os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).parent
 DATA = ROOT / "data"
+FIT  = DATA / "fit"
 OUT  = ROOT / "raport.html"
 
-TDEE_FACTOR   = 1.45   # BMR × factor activitate moderata
-PROT_OPT_LOW  = 1.6    # g/kg masa musculara
-PROT_OPT_HIGH = 2.2    # g/kg masa musculara
-MORNING_MAX_S = 120    # sub 2 min = rutina de dimineata, nu antrenament real
-BREAK_THRESH  = 3      # zile consecutive fara antrenament = pauza semnificativa
+TDEE_FACTOR   = 1.45
+PROT_OPT_LOW  = 1.6
+PROT_OPT_HIGH = 2.2
+MORNING_MAX_S = 120
+BREAK_THRESH  = 3
+
+# Mapare sport FIT → sport_type intern
+FIT_SPORT_MAP = {
+    ("running",  None):               "Run",
+    ("cycling",  None):               "Ride",
+    ("cycling",  "mountain"):         "MountainBikeRide",
+    ("cycling",  "indoor_cycling"):   "WeightTraining",
+    ("fitness_equipment", None):      "WeightTraining",
+    ("fitness_equipment", "strength_training"): "WeightTraining",
+    ("walking",  None):               "Walk",
+    ("hiking",   None):               "Walk",
+    ("generic",  None):               "Workout",
+    ("training", None):               "Workout",
+    ("swimming", None):               "Swim",
+}
+
+def fit_sport_type(sport, sub_sport):
+    sport     = (sport or "").lower().replace(" ", "_")
+    sub_sport = (sub_sport or "").lower().replace(" ", "_") if sub_sport else None
+    return (FIT_SPORT_MAP.get((sport, sub_sport))
+            or FIT_SPORT_MAP.get((sport, None))
+            or "Workout")
 
 # ─── Loaders ─────────────────────────────────────────────────────────────────
 
@@ -45,11 +69,153 @@ def load_nutritie():
     return sorted(rows, key=lambda x: x["data"])
 
 def load_activitati():
-    with open(DATA / "activitati.json") as f:
-        acts = json.load(f)
+    acts = []
+    if (DATA / "activitati.json").exists():
+        with open(DATA / "activitati.json") as f:
+            acts = json.load(f)
     for a in acts:
         a["start_dt"] = datetime.fromisoformat(a["start_local"])
-    return sorted(acts, key=lambda x: x["start_dt"])
+    return acts
+
+def parse_fit_file(path: Path) -> dict | None:
+    """Parseaza un fisier .fit si returneaza un dict in formatul activitati.json."""
+    try:
+        from garmin_fit_sdk import Decoder, Stream
+    except ImportError:
+        print("  [!] garmin-fit-sdk nu e instalat: pip install garmin-fit-sdk")
+        return None
+
+    try:
+        stream  = Stream.from_file(str(path))
+        decoder = Decoder(stream)
+        messages, errors = decoder.read(
+            apply_scale_and_offset=True,
+            convert_datetimes_to_dates=False,
+            convert_types_to_strings=True,
+            merge_heart_rates=True,
+        )
+    except Exception as e:
+        print(f"  [!] Eroare la parsarea {path.name}: {e}")
+        return None
+
+    sessions = messages.get("session_mesgs", [])
+    if not sessions:
+        print(f"  [!] {path.name}: nicio sesiune gasita in fisier")
+        return None
+
+    s = sessions[0]
+
+    # Timestamp — FIT stocheaza secunde de la 31 Dec 1989
+    FIT_EPOCH = datetime(1989, 12, 31, 0, 0, 0)
+    ts_raw = s.get("timestamp")
+    if ts_raw is None:
+        return None
+    if isinstance(ts_raw, (int, float)):
+        start_dt = FIT_EPOCH + timedelta(seconds=ts_raw)
+    elif isinstance(ts_raw, datetime):
+        start_dt = ts_raw.replace(tzinfo=None) if ts_raw.tzinfo else ts_raw
+    else:
+        try:
+            start_dt = datetime.fromisoformat(str(ts_raw))
+        except Exception:
+            return None
+
+    # Incearca start_time care e mai precis decat timestamp
+    st_raw = s.get("start_time")
+    if st_raw:
+        if isinstance(st_raw, (int, float)):
+            start_dt = FIT_EPOCH + timedelta(seconds=st_raw)
+        elif isinstance(st_raw, datetime):
+            start_dt = st_raw.replace(tzinfo=None) if st_raw.tzinfo else st_raw
+
+    sport     = s.get("sport", "generic")
+    sub_sport = s.get("sub_sport")
+    sport_type = fit_sport_type(sport, sub_sport)
+
+    # Nume activitate — din activity_mesgs daca exista
+    activity_name = ""
+    for a in messages.get("activity_mesgs", []):
+        if a.get("local_activity_id") is not None:
+            activity_name = str(a.get("local_activity_id", ""))
+    # Fallback: cauta in file_id
+    for fi in messages.get("file_id_mesgs", []):
+        if fi.get("product_name"):
+            activity_name = fi["product_name"]
+
+    if not activity_name:
+        activity_name = f"{sport_type} {start_dt.strftime('%d %b')}"
+
+    elapsed  = s.get("total_elapsed_time") or s.get("total_timer_time") or 0
+    moving   = s.get("total_timer_time")   or elapsed
+    distance = s.get("total_distance") or 0
+    calories = s.get("total_calories") or 0
+    elev     = s.get("total_ascent") or 0
+    avg_hr   = s.get("avg_heart_rate") or s.get("enhanced_avg_heart_rate")
+    max_hr   = s.get("max_heart_rate") or s.get("enhanced_max_heart_rate")
+    cadence  = s.get("avg_cadence")
+    watts    = s.get("avg_power")
+    re_val   = s.get("training_load_peak") or s.get("total_training_effect")
+
+    # Viteza medie m/s
+    avg_speed = distance / moving if (moving and distance) else 0
+
+    return {
+        "id":          f"fit_{path.stem}",
+        "name":        activity_name,
+        "sport_type":  sport_type,
+        "start_local": start_dt.strftime("%Y-%m-%dT%H:%M:%S"),
+        "moving_time": int(moving),
+        "elapsed_time": int(elapsed),
+        "distance":    round(distance, 1),
+        "elevation_gain": round(elev, 1),
+        "avg_speed":   round(avg_speed, 3),
+        "relative_effort": int(re_val) if re_val else 0,
+        "total_calories": int(calories),
+        "kudos_count": 0,
+        "achievement_count": 0,
+        "pr_count":    0,
+        "avg_hr":      round(float(avg_hr), 1) if avg_hr else None,
+        "max_hr":      int(max_hr) if max_hr else None,
+        "avg_cadence": round(float(cadence), 1) if cadence else None,
+        "avg_watts":   round(float(watts), 1) if watts else None,
+        "source":      "fit",
+        "fit_file":    path.name,
+    }
+
+def load_fit_activities() -> list:
+    """Citeste toate .fit din data/fit/ si returneaza lista de activitati."""
+    if not FIT.exists():
+        return []
+    fit_files = sorted(FIT.glob("*.fit"))
+    if not fit_files:
+        return []
+    print(f"  FIT: {len(fit_files)} fisiere gasite in data/fit/")
+    result = []
+    for f in fit_files:
+        act = parse_fit_file(f)
+        if act:
+            act["start_dt"] = datetime.fromisoformat(act["start_local"])
+            result.append(act)
+            print(f"    + {f.name} → {act['name']} ({act['start_local'][:10]}, {act['total_calories']} kcal)")
+        else:
+            print(f"    - {f.name} → ignorat")
+    return result
+
+def merge_activities(json_acts: list, fit_acts: list) -> list:
+    """Combina activitatile JSON cu cele din .fit, eliminand duplicatele dupa timestamp."""
+    combined = {a["id"]: a for a in json_acts}
+    for fa in fit_acts:
+        # Verifica daca exista deja o activitate la acelasi timestamp (±5 minute)
+        fa_dt = fa["start_dt"]
+        duplicate = any(
+            abs((a["start_dt"] - fa_dt).total_seconds()) < 300
+            for a in json_acts
+        )
+        if not duplicate:
+            combined[fa["id"]] = fa
+        else:
+            print(f"    ~ {fa['fit_file']} duplicat cu o activitate existenta — ignorat")
+    return sorted(combined.values(), key=lambda x: x["start_dt"])
 
 # ─── Analysis ────────────────────────────────────────────────────────────────
 
@@ -804,7 +970,9 @@ def build_recommendations(s):
 def generate():
     corp       = load_corp()
     nutritie   = load_nutritie()
-    activitati = load_activitati()
+    json_acts  = load_activitati()
+    fit_acts   = load_fit_activities()
+    activitati = merge_activities(json_acts, fit_acts)
 
     s = analyze(corp, nutritie, activitati)
 

@@ -34,75 +34,112 @@ def _build_lookups():
 CAT_MAP, SUB_MAPS = _build_lookups()
 
 RO_EXERCISE = {
-    # Presa / impingere
-    "bench_press":              "Presa piept",
-    "barbell_bench_press":      "Presa piept bara",
-    "dumbbell_bench_press":     "Presa piept gantere",
-    "incline_barbell_bench_press": "Presa inclinata bara",
-    "incline_dumbbell_bench_press": "Presa inclinata gantere",
-    "decline_dumbbell_bench_press": "Presa declinata gantere",
-    "push_up":                  "Flotari",
-    "shoulder_press":           "Presa umeri",
-    "barbell_shoulder_press":   "Presa umeri bara",
-    "dumbbell_shoulder_press":  "Presa umeri gantere",
-    "lateral_raise":            "Ridicari laterale",
-    "front_raise":              "Ridicari frontale",
-    "triceps_extension":        "Extensie triceps",
-    "cable_triceps_extension":  "Extensie triceps scripete",
-    # Tractiune
-    "row":                      "Vaslit",
-    "barbell_row":              "Vaslit bara",
-    "dumbbell_row":             "Vaslit gantere",
-    "seated_cable_row":         "Vaslit scripete",
-    "pull_up":                  "Tractiuni",
-    "chin_up":                  "Tractiuni supinatie",
-    "lat_pulldown":             "Tractiuni scripete",
-    "curl":                     "Flexii biceps",
-    "barbell_curl":             "Flexii bara",
-    "dumbbell_curl":            "Flexii gantere",
-    "hammer_curl":              "Flexii hammer",
-    "shrug":                    "Ridicari umeri",
-    "barbell_shrug":            "Ridicari umeri bara",
+    # Presa piept
+    "bench_press":                      "Presa piept",
+    "barbell_bench_press":              "Presa piept bara",
+    "dumbbell_bench_press":             "Presa piept gantere",
+    "incline_barbell_bench_press":      "Presa inclinata bara",
+    "incline_dumbbell_bench_press":     "Presa inclinata gantere",
+    "decline_dumbbell_bench_press":     "Presa declinata gantere",
+    "close_grip_barbell_bench_press":   "Presa piept priza ingusta",
+    # Umeri / impingere
+    "push_up":                          "Flotari",
+    "shoulder_press":                   "Presa umeri",
+    "barbell_shoulder_press":           "Presa umeri bara",
+    "overhead_barbell_press":           "Presa umeri bara",
+    "dumbbell_shoulder_press":          "Presa umeri gantere",
+    "overhead_dumbbell_press":          "Presa umeri gantere",
+    "lateral_raise":                    "Ridicari laterale",
+    "dumbbell_lateral_raise":           "Ridicari laterale gantere",
+    "front_raise":                      "Ridicari frontale",
+    "dumbbell_front_raise":             "Ridicari frontale gantere",
+    "triceps_extension":                "Extensie triceps",
+    "cable_triceps_extension":          "Extensie triceps scripete",
+    "ez_bar_overhead_triceps_extension":"Extensie triceps EZ",
+    "overhead_triceps_extension":       "Extensie triceps deasupra",
+    # Tractiune / spate
+    "row":                              "Vaslit",
+    "barbell_row":                      "Vaslit bara",
+    "dumbbell_row":                     "Vaslit gantere",
+    "seated_cable_row":                 "Vaslit scripete",
+    "pull_up":                          "Tractiuni",
+    "chin_up":                          "Tractiuni supinatie",
+    "lat_pulldown":                     "Tractiuni scripete",
+    "close_grip_lat_pulldown":          "Tractiuni scripete priza ingusta",
+    "curl":                             "Flexii biceps",
+    "barbell_curl":                     "Flexii bara",
+    "dumbbell_curl":                    "Flexii gantere",
+    "hammer_curl":                      "Flexii hammer",
+    "shrug":                            "Ridicari umeri",
+    "barbell_shrug":                    "Ridicari umeri bara",
+    "dumbbell_shrug":                   "Ridicari umeri gantere",
     # Picioare
-    "squat":                    "Genuflexiuni",
-    "barbell_squat":            "Genuflexiuni bara",
-    "leg_press":                "Presa picioare",
-    "deadlift":                 "Indreptari",
-    "barbell_deadlift":         "Indreptari bara",
-    "romanian_deadlift":        "Indreptari romanesti",
-    "leg_curl":                 "Flexii picioare",
-    "leg_extension":            "Extensii picioare",
-    "calf_raise":               "Ridicari pe varfuri",
-    "standing_calf_raise":      "Ridicari pe varfuri in picioare",
-    "lunge":                    "Fandari",
+    "squat":                            "Genuflexiuni",
+    "barbell_squat":                    "Genuflexiuni bara",
+    "back_squat":                       "Genuflexiuni bara spate",
+    "front_squat":                      "Genuflexiuni bara fata",
+    "goblet_squat":                     "Genuflexiuni goblet",
+    "leg_press":                        "Presa picioare",
+    "deadlift":                         "Indreptari",
+    "barbell_deadlift":                 "Indreptari bara",
+    "romanian_deadlift":                "Indreptari romanesti",
+    "sumo_deadlift":                    "Indreptari sumo",
+    "leg_curl":                         "Flexii picioare",
+    "leg_extension":                    "Extensii picioare",
+    "calf_raise":                       "Ridicari pe varfuri",
+    "standing_calf_raise":              "Ridicari pe varfuri",
+    "seated_calf_raise":                "Ridicari pe varfuri asezat",
+    "lunge":                            "Fandari",
+    "barbell_lunge":                    "Fandari bara",
+    "dumbbell_lunge":                   "Fandari gantere",
+    "hip_raise":                        "Ridicari solduri",
+    "barbell_hip_thrust":               "Impingeri solduri bara",
     # Core
-    "plank":                    "Plank",
-    "crunch":                   "Abdomen",
-    "sit_up":                   "Flotari abdo",
-    "hip_raise":                "Ridicari solduri",
-    # Generic
-    "core":                     "Core",
-    "cardio":                   "Cardio",
-    "olympic_lift":             "Ridicare olimpica",
-    "flye":                     "Fluturari",
-    "cable_fly":                "Fluturari scripete",
-    "dumbbell_fly":             "Fluturari gantere",
+    "plank":                            "Plank",
+    "crunch":                           "Abdomen",
+    "sit_up":                           "Abdomene",
+    "leg_raise":                        "Ridicari picioare",
+    "hanging_leg_raise":                "Ridicari picioare agatat",
+    # Fluturari
+    "flye":                             "Fluturari",
+    "cable_fly":                        "Fluturari scripete",
+    "dumbbell_fly":                     "Fluturari gantere",
+    "dumbbell_flye":                    "Fluturari gantere",
+    "cable_crossover":                  "Fluturari scripete",
+    # Olympic / functional
+    "olympic_lift":                     "Ridicare olimpica",
+    "power_clean":                      "Power clean",
+    "clean_and_jerk":                   "Clean & jerk",
+    "snatch":                           "Smuls",
+    "kettlebell_swing":                 "Kettlebell swing",
+    # Altele
+    "core":                             "Core",
+    "cardio":                           "Cardio",
+    "banded_exercises":                 "Exercitii cu banda",
+    "pull_apart":                       "Band pull-apart",
+    "warm_up":                          "Incalzire",
 }
 
 def exercise_name(cat_raw, sub_raw):
     """Returneaza numele human-readable al exercitiului."""
-    # cat_raw si sub_raw pot fi string sau int
     cat_str = str(cat_raw).lower().replace(" ", "_") if cat_raw is not None else ""
-    sub_str = str(sub_raw).lower().replace(" ", "_") if sub_raw is not None else ""
 
-    # Incearca sub-tip mai specific intai
-    full_key = sub_str or cat_str
-    if full_key in RO_EXERCISE:
-        return RO_EXERCISE[full_key]
-    if cat_str in RO_EXERCISE:
-        return RO_EXERCISE[cat_str]
+    # sub_raw poate fi int (index in profil) sau string deja rezolvat
+    sub_str = ""
+    if sub_raw is not None:
+        if isinstance(sub_raw, int):
+            # Lookup in profilul FIT: {category}_exercise_name[str(index)]
+            resolved = SUB_MAPS.get(cat_str, {}).get(str(sub_raw))
+            sub_str = resolved.lower().replace(" ", "_") if resolved else ""
+        else:
+            sub_str = str(sub_raw).lower().replace(" ", "_")
 
-    # Fallback: curata underscores si capitalizeaza
+    # Incearca sub-tip mai specific intai, apoi categoria
+    for key in (sub_str, cat_str):
+        if key and key in RO_EXERCISE:
+            return RO_EXERCISE[key]
+
+    # Fallback: curata si capitalizeaza numele original
     name = sub_str or cat_str
     return name.replace("_", " ").title() if name else "Exercitiu necunoscut"
 

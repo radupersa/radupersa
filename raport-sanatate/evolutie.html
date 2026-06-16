@@ -1,6 +1,1092 @@
-<!DOCTYPE html><html><head><meta charset='UTF-8'>
-<title>Evolutie Exercitii</title></head><body style='font-family:sans-serif;padding:40px;'>
-<h1>Nicio data gasita</h1>
-<p>Adauga fisiere .fit in <code>raport-sanatate/data/fit/</code> si ruleaza din nou.</p>
-<p>Fisierele trebuie sa fie antrenamente de sala cu seturi si repetari inregistrate.</p>
-</body></html>
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evolutie Exercitii</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+       background: #f0f4f8; color: #1a202c; }
+
+.header { background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+  color: white; padding: 40px 48px; }
+.header h1 { font-size: 28px; font-weight: 700; }
+.header p  { margin-top: 6px; color: #a0aec0; font-size: 14px; }
+.badge { display: inline-block; margin-top: 12px; font-size: 11px; font-weight: 600;
+  background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 12px; color: #e2e8f0; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+.section-title { font-size: 18px; font-weight: 700; color: #2d3748;
+  margin: 36px 0 16px; border-left: 4px solid #4299e1; padding-left: 12px; }
+.section-title.green  { border-left-color: #48bb78; }
+.section-title.orange { border-left-color: #ed8936; }
+.section-title.red    { border-left-color: #fc8181; }
+
+/* KPI */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+.kpi-card { background: white; border-radius: 12px; padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: #718096; }
+.kpi-value { font-size: 28px; font-weight: 700; color: #2d3748; margin: 6px 0 2px; }
+.kpi-sub   { font-size: 12px; color: #718096; }
+.pos { color: #48bb78; } .neg { color: #fc8181; } .neu { color: #a0aec0; }
+
+/* Exercise card */
+.ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+.ex-card { background: white; border-radius: 12px; padding: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
+.ex-header { padding: 16px 20px 12px; border-bottom: 1px solid #f7fafc; }
+.ex-name  { font-size: 16px; font-weight: 700; color: #2d3748; }
+.ex-meta  { font-size: 12px; color: #718096; margin-top: 3px; }
+.ex-stats { display: flex; gap: 16px; padding: 12px 20px; background: #f7fafc; }
+.ex-stat  { text-align: center; }
+.ex-stat-val   { font-size: 20px; font-weight: 700; color: #2d3748; }
+.ex-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: #718096; }
+.ex-chart { padding: 12px 20px 16px; }
+.ex-chart-title { font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
+  color: #a0aec0; margin-bottom: 8px; }
+
+/* Session bars in exercise card */
+.sess-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.sess-date { font-size: 11px; color: #718096; width: 60px; flex-shrink: 0; }
+.sess-bar-wrap { flex: 1; position: relative; }
+.sess-bar-bg   { background: #edf2f7; border-radius: 3px; height: 20px; position: relative; overflow: hidden; }
+.sess-bar-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+.sess-bar-label { position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  font-size: 11px; font-weight: 600; color: #2d3748; }
+.sess-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 8px;
+  white-space: nowrap; flex-shrink: 0; }
+.pr-badge  { background: #fefcbf; color: #744210; }
+.vol-badge { background: #ebf8ff; color: #2b6cb0; font-weight: 400; }
+
+/* Table */
+.table-wrap { background: white; border-radius: 12px; overflow-x: auto;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #edf2f7; padding: 11px 16px; text-align: left; font-size: 11px;
+  text-transform: uppercase; letter-spacing: .5px; color: #718096; }
+td { padding: 10px 16px; border-top: 1px solid #f7fafc; }
+tr:hover td { background: #f7fafc; }
+.row-pr { background: #fffff0 !important; }
+
+/* Trend arrow */
+.trend-up   { color: #48bb78; font-weight: 700; }
+.trend-down { color: #fc8181; font-weight: 700; }
+.trend-flat { color: #a0aec0; }
+
+.alert { background: #ebf8ff; border-left: 4px solid #4299e1; border-radius: 8px;
+  padding: 14px 18px; margin-bottom: 8px; }
+.alert h3 { font-size: 14px; font-weight: 700; color: #2b6cb0; margin-bottom: 4px; }
+.alert p  { font-size: 13px; color: #718096; line-height: 1.6; }
+
+footer { text-align: center; padding: 32px; color: #a0aec0; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Raport Evolutie Exercitii</h1>
+  <p>Persa Radu · 5 sesiuni analizate · 2026-06-02 → 2026-06-16</p>
+  <span class="badge">Generat 16 June 2026 · 17 exercitii · 160 seturi totale</span>
+</div>
+
+<div class="container">
+
+  <div class="section-title" style="margin-top:24px;">Sumar global</div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Sesiuni analizate</div>
+      <div class="kpi-value">5</div>
+      <div class="kpi-sub">2026-06-02 → 2026-06-16</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Exercitii unice</div>
+      <div class="kpi-value">17</div>
+      <div class="kpi-sub">din fisierele .fit</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total seturi</div>
+      <div class="kpi-value">160</div>
+      <div class="kpi-sub">exclusiv pauze</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Volum total</div>
+      <div class="kpi-value">29.4t</div>
+      <div class="kpi-sub">29428 kg ridicate</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">PR-uri setate</div>
+      <div class="kpi-value">21</div>
+      <div class="kpi-sub">record personal per exercitiu</div>
+    </div>
+  </div>
+  <div style="margin-top:20px;" class="alert">
+    <h3>Cel mai mare progres: Genuflexiuni</h3>
+    <p>De la <strong>30.0 kg</strong> la <strong>35.0 kg</strong>
+    (+5.0 kg) in 3 sesiuni.</p>
+  </div><div style="margin-top:8px;">
+  <div class="alert" style="background:#fff5f5;border-left-color:#fc8181;">
+    <h3 style="color:#c53030;">Regres: Presa umeri bara</h3>
+    <p>De la 17.5 kg la 17.3 kg (-0.2 kg).
+    Verifica tehnica sau creste recuperarea.</p>
+  </div></div>
+  <div class="section-title green">Evolutie per exercitiu</div>
+  <div class="ex-grid">
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Genuflexiuni</div>
+      <div class="ex-meta">3 sesiuni · 2 PR-uri · <span class="trend-up">▲ +5.0 kg</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">35.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">55.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+225 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">4 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:54%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">30.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×10 rep · 750 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">6 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">55.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">7×10 rep · 3460 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">16 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:63%;background:#4299e1;"></div>
+              <span class="sess-bar-label">35.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">3×10 rep · 975 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Indreptari bara</div>
+      <div class="ex-meta">2 sesiuni · 2 PR-uri · <span class="trend-up">▲ +2.4 kg</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">52.4 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">52.4 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">-302 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">4 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:95%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">50.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">7×9 rep · 3072 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">16 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">52.4 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">6×10 rep · 2770 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Vaslit bara</div>
+      <div class="ex-meta">2 sesiuni · 2 PR-uri · <span class="trend-up">▲ +5.0 kg</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">45.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">45.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">-60 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">4 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:88%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">40.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">7×9 rep · 2310 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">16 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">45.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">6×10 rep · 2250 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Presa piept bara</div>
+      <div class="ex-meta">2 sesiuni · 2 PR-uri · <span class="trend-up">▲ +5.0 kg</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">45.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">45.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">-390 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">2 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:88%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">40.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">7×9 rep · 2520 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">9 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">45.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">6×9 rep · 2130 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Tractiuni</div>
+      <div class="ex-meta">2 sesiuni · 1 PR-uri · <span class="trend-flat">= stabil</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">30.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">30.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+150 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">4 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">30.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×10 rep · 700 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">16 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#4299e1;"></div>
+              <span class="sess-bar-label">30.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">3×10 rep · 850 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Fandari gantere</div>
+      <div class="ex-meta">1 sesiuni · 1 PR-uri · <span class="trend-flat">= stabil</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">25.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">25.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+0 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">6 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">25.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×10 rep · 775 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Ridicare olimpica</div>
+      <div class="ex-meta">2 sesiuni · 2 PR-uri · <span class="trend-up">▲ +2.5 kg</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">22.5 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">22.5 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+50 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">4 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:88%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">20.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×10 rep · 600 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">16 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">22.5 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×10 rep · 650 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Fluturari gantere</div>
+      <div class="ex-meta">2 sesiuni · 2 PR-uri · <span class="trend-up">▲ +5.0 kg</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">20.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">20.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">-70 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">2 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:75%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">15.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×10 rep · 400 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">9 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">20.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×9 rep · 330 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Extensie triceps EZ</div>
+      <div class="ex-meta">2 sesiuni · 2 PR-uri · <span class="trend-up">▲ +2.5 kg</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">17.5 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">17.5 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+0 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">2 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:85%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">15.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×10 rep · 425 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">9 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">17.5 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×10 rep · 425 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Presa umeri bara</div>
+      <div class="ex-meta">2 sesiuni · 1 PR-uri · <span class="trend-down">▼ -0.2 kg</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">17.3 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">17.5 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">-29 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">2 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">17.5 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">7×8 rep · 915 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">9 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:98%;background:#4299e1;"></div>
+              <span class="sess-bar-label">17.3 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">6×9 rep · 886 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Ridicari solduri</div>
+      <div class="ex-meta">1 sesiuni · 1 PR-uri · <span class="trend-flat">= stabil</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">15.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">15.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+0 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">6 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">15.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×10 rep · 450 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Presa umeri gantere</div>
+      <div class="ex-meta">2 sesiuni · 1 PR-uri · <span class="trend-flat">= stabil</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">15.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">15.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+55 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">2 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">15.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×9 rep · 305 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">9 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#4299e1;"></div>
+              <span class="sess-bar-label">15.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">3×8 rep · 360 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Fluturari</div>
+      <div class="ex-meta">2 sesiuni · 1 PR-uri · <span class="trend-flat">= stabil</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">10.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">10.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+0 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">4 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">10.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×10 rep · 300 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">16 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#4299e1;"></div>
+              <span class="sess-bar-label">10.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">3×10 rep · 300 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Ridicari frontale</div>
+      <div class="ex-meta">2 sesiuni · 1 PR-uri · <span class="trend-flat">= stabil</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">10.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">10.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+80 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">2 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#fbd38d;"></div>
+              <span class="sess-bar-label">10.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge pr-badge">PR</span><span class="sess-badge vol-badge">3×9 rep · 220 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">9 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:100%;background:#4299e1;"></div>
+              <span class="sess-bar-label">10.0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">3×10 rep · 300 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Exercitii cu banda</div>
+      <div class="ex-meta">3 sesiuni · 0 PR-uri · <span class="trend-flat">= stabil</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">0.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">0.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+0 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">4 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:0%;background:#4299e1;"></div>
+              <span class="sess-bar-label">0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">1×19 rep · 0 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">6 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:0%;background:#4299e1;"></div>
+              <span class="sess-bar-label">0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">1×18 rep · 0 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">16 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:0%;background:#4299e1;"></div>
+              <span class="sess-bar-label">0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">2×4 rep · 0 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Flotari</div>
+      <div class="ex-meta">2 sesiuni · 0 PR-uri · <span class="trend-flat">= stabil</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">0.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">0.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+0 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">2 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:0%;background:#4299e1;"></div>
+              <span class="sess-bar-label">0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">1×21 rep · 0 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">9 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:0%;background:#4299e1;"></div>
+              <span class="sess-bar-label">0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">1×20 rep · 0 kg vol</span>
+        </div>
+    </div>
+  </div>
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-name">Band pull-apart</div>
+      <div class="ex-meta">2 sesiuni · 0 PR-uri · <span class="trend-flat">= stabil</span></div>
+    </div>
+    <div class="ex-stats">
+      <div class="ex-stat">
+        <div class="ex-stat-val">0.0 kg</div>
+        <div class="ex-stat-label">Greutate actuala</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">0.0 kg</div>
+        <div class="ex-stat-label">Max ever</div>
+      </div>
+      <div class="ex-stat">
+        <div class="ex-stat-val">+0 kg</div>
+        <div class="ex-stat-label">Δ Volum</div>
+      </div>
+    </div>
+    <div class="ex-chart">
+      <div class="ex-chart-title">Greutate max per sesiune</div>
+      
+        <div class="sess-row">
+          <div class="sess-date">2 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:0%;background:#4299e1;"></div>
+              <span class="sess-bar-label">0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">1×15 rep · 0 kg vol</span>
+        </div>
+        <div class="sess-row">
+          <div class="sess-date">9 Iun</div>
+          <div class="sess-bar-wrap">
+            <div class="sess-bar-bg">
+              <div class="sess-bar-fill" style="width:0%;background:#4299e1;"></div>
+              <span class="sess-bar-label">0 kg</span>
+            </div>
+          </div>
+          <span class="sess-badge vol-badge">1×21 rep · 0 kg vol</span>
+        </div>
+    </div>
+  </div>
+  </div>
+  <div class="section-title orange">Tabel sumar comparativ</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Exercitiu</th><th>Sesiuni</th><th>Prima sesiune</th>
+          <th>Prima greutate</th><th>Ultima greutate</th><th>Δ Greutate</th>
+          <th>Max ever</th><th>PR-uri</th><th>Trend</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Genuflexiuni</strong></td>
+          <td>3</td>
+          <td>4 Iun</td>
+          <td>30.0 kg</td>
+          <td>35.0 kg</td>
+          <td class="trend-up">+5.0 kg</td>
+          <td><strong>55.0 kg</strong></td>
+          <td>2</td>
+          <td class="trend-up ">▲</td>
+        </tr>
+        <tr>
+          <td><strong>Indreptari bara</strong></td>
+          <td>2</td>
+          <td>4 Iun</td>
+          <td>50.0 kg</td>
+          <td>52.4 kg</td>
+          <td class="trend-up">+2.4 kg</td>
+          <td><strong>52.4 kg</strong></td>
+          <td>2</td>
+          <td class="trend-up ">▲</td>
+        </tr>
+        <tr>
+          <td><strong>Vaslit bara</strong></td>
+          <td>2</td>
+          <td>4 Iun</td>
+          <td>40.0 kg</td>
+          <td>45.0 kg</td>
+          <td class="trend-up">+5.0 kg</td>
+          <td><strong>45.0 kg</strong></td>
+          <td>2</td>
+          <td class="trend-up ">▲</td>
+        </tr>
+        <tr>
+          <td><strong>Presa piept bara</strong></td>
+          <td>2</td>
+          <td>2 Iun</td>
+          <td>40.0 kg</td>
+          <td>45.0 kg</td>
+          <td class="trend-up">+5.0 kg</td>
+          <td><strong>45.0 kg</strong></td>
+          <td>2</td>
+          <td class="trend-up ">▲</td>
+        </tr>
+        <tr>
+          <td><strong>Tractiuni</strong></td>
+          <td>2</td>
+          <td>4 Iun</td>
+          <td>30.0 kg</td>
+          <td>30.0 kg</td>
+          <td class="trend-flat">0.0 kg</td>
+          <td><strong>30.0 kg</strong></td>
+          <td>1</td>
+          <td class="trend-flat ">=</td>
+        </tr>
+        <tr>
+          <td><strong>Fandari gantere</strong></td>
+          <td>1</td>
+          <td>6 Iun</td>
+          <td>25.0 kg</td>
+          <td>25.0 kg</td>
+          <td class="trend-flat">0.0 kg</td>
+          <td><strong>25.0 kg</strong></td>
+          <td>1</td>
+          <td class="trend-flat ">=</td>
+        </tr>
+        <tr>
+          <td><strong>Ridicare olimpica</strong></td>
+          <td>2</td>
+          <td>4 Iun</td>
+          <td>20.0 kg</td>
+          <td>22.5 kg</td>
+          <td class="trend-up">+2.5 kg</td>
+          <td><strong>22.5 kg</strong></td>
+          <td>2</td>
+          <td class="trend-up ">▲</td>
+        </tr>
+        <tr>
+          <td><strong>Fluturari gantere</strong></td>
+          <td>2</td>
+          <td>2 Iun</td>
+          <td>15.0 kg</td>
+          <td>20.0 kg</td>
+          <td class="trend-up">+5.0 kg</td>
+          <td><strong>20.0 kg</strong></td>
+          <td>2</td>
+          <td class="trend-up ">▲</td>
+        </tr>
+        <tr>
+          <td><strong>Extensie triceps EZ</strong></td>
+          <td>2</td>
+          <td>2 Iun</td>
+          <td>15.0 kg</td>
+          <td>17.5 kg</td>
+          <td class="trend-up">+2.5 kg</td>
+          <td><strong>17.5 kg</strong></td>
+          <td>2</td>
+          <td class="trend-up ">▲</td>
+        </tr>
+        <tr>
+          <td><strong>Presa umeri bara</strong></td>
+          <td>2</td>
+          <td>2 Iun</td>
+          <td>17.5 kg</td>
+          <td>17.3 kg</td>
+          <td class="trend-down">-0.2 kg</td>
+          <td><strong>17.5 kg</strong></td>
+          <td>1</td>
+          <td class="trend-down ">▼</td>
+        </tr>
+        <tr>
+          <td><strong>Ridicari solduri</strong></td>
+          <td>1</td>
+          <td>6 Iun</td>
+          <td>15.0 kg</td>
+          <td>15.0 kg</td>
+          <td class="trend-flat">0.0 kg</td>
+          <td><strong>15.0 kg</strong></td>
+          <td>1</td>
+          <td class="trend-flat ">=</td>
+        </tr>
+        <tr>
+          <td><strong>Presa umeri gantere</strong></td>
+          <td>2</td>
+          <td>2 Iun</td>
+          <td>15.0 kg</td>
+          <td>15.0 kg</td>
+          <td class="trend-flat">0.0 kg</td>
+          <td><strong>15.0 kg</strong></td>
+          <td>1</td>
+          <td class="trend-flat ">=</td>
+        </tr>
+        <tr>
+          <td><strong>Fluturari</strong></td>
+          <td>2</td>
+          <td>4 Iun</td>
+          <td>10.0 kg</td>
+          <td>10.0 kg</td>
+          <td class="trend-flat">0.0 kg</td>
+          <td><strong>10.0 kg</strong></td>
+          <td>1</td>
+          <td class="trend-flat ">=</td>
+        </tr>
+        <tr>
+          <td><strong>Ridicari frontale</strong></td>
+          <td>2</td>
+          <td>2 Iun</td>
+          <td>10.0 kg</td>
+          <td>10.0 kg</td>
+          <td class="trend-flat">0.0 kg</td>
+          <td><strong>10.0 kg</strong></td>
+          <td>1</td>
+          <td class="trend-flat ">=</td>
+        </tr>
+        <tr>
+          <td><strong>Exercitii cu banda</strong></td>
+          <td>3</td>
+          <td>4 Iun</td>
+          <td>0.0 kg</td>
+          <td>0.0 kg</td>
+          <td class="trend-flat">0.0 kg</td>
+          <td><strong>0.0 kg</strong></td>
+          <td>0</td>
+          <td class="trend-flat ">=</td>
+        </tr>
+        <tr>
+          <td><strong>Flotari</strong></td>
+          <td>2</td>
+          <td>2 Iun</td>
+          <td>0.0 kg</td>
+          <td>0.0 kg</td>
+          <td class="trend-flat">0.0 kg</td>
+          <td><strong>0.0 kg</strong></td>
+          <td>0</td>
+          <td class="trend-flat ">=</td>
+        </tr>
+        <tr>
+          <td><strong>Band pull-apart</strong></td>
+          <td>2</td>
+          <td>2 Iun</td>
+          <td>0.0 kg</td>
+          <td>0.0 kg</td>
+          <td class="trend-flat">0.0 kg</td>
+          <td><strong>0.0 kg</strong></td>
+          <td>0</td>
+          <td class="trend-flat ">=</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<footer>
+  Evolutie generata 16 June 2026 · 7 fisiere .fit procesate · 160 seturi active
+</footer>
+</body>
+</html>

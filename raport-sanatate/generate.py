@@ -492,16 +492,42 @@ def build_alerts(s, corp, nutritie):
     if dw > 1.0:
         prev = corp[-2] if len(corp) >= 2 else None
         prev_txt = ""
+        prev_trend_positive = False
         if prev:
-            dw2 = round((s["end"]["greutate"] or 0) - (prev["greutate"] or 0), 1)
-            days2 = (s["end"]["data"] - prev["data"]).days
-            prev_txt = f' Fata de ultima masurare din {ro_date(prev["data"])} ({prev["greutate"]} kg), cresterea este de <strong>+{dw2} kg in {days2} zile</strong>.'
+            dw2    = round((s["end"]["greutate"] or 0) - (prev["greutate"] or 0), 1)
+            days2  = (s["end"]["data"] - prev["data"]).days
+            if dw2 < 0:
+                prev_trend_positive = True
+                prev_txt = (f' Fata de ultima masurare din {ro_date(prev["data"])} ({prev["greutate"]} kg),'
+                            f' <strong>scadere de {abs(dw2):.1f} kg in {days2} zile</strong> — tendinta pozitiva.')
+            elif dw2 > 0:
+                prev_txt = (f' Fata de ultima masurare din {ro_date(prev["data"])} ({prev["greutate"]} kg),'
+                            f' crestere de <strong>+{dw2:.1f} kg in {days2} zile</strong>.')
+            else:
+                prev_txt = f' Greutate stabila fata de {ro_date(prev["data"])} ({prev["greutate"]} kg).'
+
+        # Verifica daca e intr-adevar peak-ul sau a scazut de la peak
+        max_w = max(r["greutate"] for r in corp if r["greutate"])
+        is_peak = s["end"]["greutate"] >= max_w
+        peak_row = next((r for r in reversed(corp[:-1]) if r["greutate"] == max_w), None)
+        if is_peak:
+            title  = f'Greutate crescuta cu +{dw:.1f} kg fata de startul din {ro_date(s["start"]["data"])} — nivel maxim din perioada'
+            footer = "Tendinta negativa."
+        elif prev_trend_positive:
+            title  = f'Greutate cu +{dw:.1f} kg fata de startul din {ro_date(s["start"]["data"])}, dar in scadere fata de peak'
+            peak_info = f' (peak: {max_w} kg pe {ro_date(peak_row["data"])} {peak_row["data"].year})' if peak_row else ""
+            footer = f'Inca peste nivelul de start, insa tendinta recenta este de scadere{peak_info}.'
+        else:
+            title  = f'Greutate crescuta cu +{dw:.1f} kg fata de startul din {ro_date(s["start"]["data"])}'
+            footer = "Urmareste tendinta in urmatoarele masuratori."
+
+        alert_cls = "alert green" if prev_trend_positive else "alert"
         html += f"""
-    <div class="alert">
-      <h3>Greutate crescuta cu +{dw} kg fata de startul din {ro_date(s['start']['data'])} — cel mai ridicat nivel din perioada</h3>
+    <div class="{alert_cls}">
+      <h3>{'✓ ' if prev_trend_positive else ''}{title}</h3>
       <p>De la <strong>{s['start']['greutate']} kg</strong> ({ro_date(s['start']['data'])}) la
       <strong>{s['end']['greutate']} kg</strong> ({ro_date(s['end']['data'])}).{prev_txt}
-      Tendinta negativa s-a accelerat.</p>
+      {footer}</p>
     </div>"""
 
     # Nutrition log incomplete alert

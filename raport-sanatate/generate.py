@@ -276,6 +276,11 @@ def analyze(corp, nutritie, activitati):
                 max_break_start = real_dates[i-1] + timedelta(days=1)
                 max_break_end   = real_dates[i] - timedelta(days=1)
 
+    # Pauza curenta: ultima sesiune reala > BREAK_THRESH zile in urma
+    last_real_date = real_dates[-1] if real_dates else None
+    today_date     = datetime.now().date()
+    current_break  = (today_date - last_real_date).days if last_real_date else 0
+
     # Protein optimum based on last muscle mass
     musc = end["masa_musc_kg"] or 57.5
     prot_opt_low  = musc * PROT_OPT_LOW
@@ -320,6 +325,8 @@ def analyze(corp, nutritie, activitati):
         "max_break":       max_break,
         "max_break_start": max_break_start,
         "max_break_end":   max_break_end,
+        "current_break":   current_break,
+        "last_real_date":  last_real_date,
         "complete_nut": complete_nut,
     }
 
@@ -462,16 +469,22 @@ footer { text-align: center; padding: 32px; color: #a0aec0; font-size: 12px; }
 def build_alerts(s, corp, nutritie):
     html = '<div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">'
 
-    # Training break alert
-    if s["max_break"] and s["max_break"] >= BREAK_THRESH:
+    # Training break alert — afiseaza doar daca pauza e activa acum
+    if s["current_break"] >= BREAK_THRESH:
+        html += f"""
+    <div class="alert orange">
+      <h3>⚠ Pauza activa: {s['current_break']} zile fara sesiune reala</h3>
+      <p>Ultima sesiune reala a fost pe <strong>{ro_date(s['last_real_date'])}</strong>.
+      Rutinele de dimineata inregistrate (sub 2 minute) nu sunt considerate antrenament.</p>
+    </div>"""
+    elif s["max_break"] and s["max_break"] >= BREAK_THRESH:
         d1 = ro_date(s["max_break_start"])
         d2 = ro_date(s["max_break_end"])
         html += f"""
-    <div class="alert orange">
-      <h3>⚠ Pauza de antrenament: {s['max_break']} zile fara sesiune reala ({d1}–{d2})</h3>
-      <p>Strava confirma ca intre <strong>{d1} si {d2}</strong> nu a existat nicio sesiune
-      de sala sau ciclism. Rutinele de dimineata inregistrate (sub 2 minute) reprezinta
-      probabil mobilitate/stretching, nu antrenament propriu-zis.</p>
+    <div class="alert green">
+      <h3>✓ Antrenament consistent — pauza trecuta de {s['max_break']} zile ({d1}–{d2}) depasita</h3>
+      <p>A existat o pauza intre <strong>{d1} si {d2}</strong>, dar ai reluat antrenamentul
+      si esti activ. Continua ritmul!</p>
     </div>"""
 
     # Weight gain alert
@@ -979,20 +992,27 @@ def build_activity_table(s):
 
 def build_insights(s):
     dw = s["delta_greutate"]
-    prot_gap = s["avg_prot"] < s["prot_opt_low"]
-    big_break = s["max_break"] and s["max_break"] >= BREAK_THRESH
+    prot_gap  = s["avg_prot"] < s["prot_opt_low"]
+    active_break  = s["current_break"] >= BREAK_THRESH
+    past_break    = not active_break and s["max_break"] and s["max_break"] >= BREAK_THRESH
 
     html = '<div class="insight-grid">'
 
-    if big_break:
+    if active_break:
+        html += f"""
+    <div class="insight red">
+      <h3>Pauza activa de {s['current_break']} zile</h3>
+      <p>Nu ai avut o sesiune reala in ultimele <strong>{s['current_break']} zile</strong>.
+      Reia antrenamentul cat mai curand pentru a evita pierderea de masa musculara si acumularea de grasime.</p>
+    </div>"""
+    elif past_break:
         d1 = ro_date(s["max_break_start"]) if s["max_break_start"] else "—"
         d2 = ro_date(s["max_break_end"])   if s["max_break_end"]   else "—"
         html += f"""
-    <div class="insight red">
-      <h3>Pauza de {s['max_break']} zile + posibil surplus caloric</h3>
-      <p>Absenta antrenamentului intre <strong>{d1} si {d2}</strong>, combinata cu un aport caloric
-      probabil mai mare decat cel logat, a dus la crestere in greutate. Fara stimulul mecanic al
-      antrenamentului, surplusul caloric se depune preferential ca grasime.</p>
+    <div class="insight green">
+      <h3>Pauza trecuta de {s['max_break']} zile ({d1}–{d2}) — revenire confirmata</h3>
+      <p>Dupa absenta dintre <strong>{d1} si {d2}</strong>, ai reluat antrenamentele si esti consistent.
+      Mentine ritmul actual pentru a recupera compozitia corporala.</p>
     </div>"""
 
     if dw > 0.5 and s["avg_kcal"] > 0 and s["avg_kcal"] < s["tdee"]:

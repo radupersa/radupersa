@@ -281,14 +281,29 @@ def analyze(corp, nutritie, activitati):
     prot_opt_low  = musc * PROT_OPT_LOW
     prot_opt_high = musc * PROT_OPT_HIGH
 
+    prev = corp[-2] if len(corp) >= 2 else None
+
+    def _delta(field, a, b, ndigits=1):
+        va = a.get(field)
+        vb = b.get(field) if b else None
+        if va is None or vb is None:
+            return None
+        return round(va - vb, ndigits)
+
     return {
         "start": start,
         "end":   end,
+        "prev":  prev,
         "period_days": (end["data"] - start["data"]).days,
         "delta_greutate": round((end["greutate"] or 0) - (start["greutate"] or 0), 1),
         "delta_grasime":  round((end["grasime_proc"] or 0) - (start["grasime_proc"] or 0), 1),
         "delta_body_score": int((end["body_score"] or 0) - (start["body_score"] or 0)),
         "delta_varsta":     int((end["varsta_corp"] or 0) - (start["varsta_corp"] or 0)),
+        "prev_delta_greutate":    _delta("greutate",    end, prev),
+        "prev_delta_grasime":     _delta("grasime_proc",end, prev),
+        "prev_delta_musc_kg":     _delta("masa_musc_kg",end, prev),
+        "prev_delta_body_score":  None if not (prev and end["body_score"] and prev["body_score"]) else int(end["body_score"] - prev["body_score"]),
+        "prev_delta_bmr":         None if not (prev and end["BMR"] and prev["BMR"]) else int(end["BMR"] - prev["BMR"]),
         "real":     real,
         "morning":  morning,
         "total_cal_burned": total_cal_burned,
@@ -490,8 +505,27 @@ def build_alerts(s, corp, nutritie):
     return html
 
 
+def _prev_badge(val, unit="", invert=False, label=""):
+    """Render a small inline badge for delta vs previous measurement."""
+    if val is None:
+        return ""
+    if val == 0:
+        sign, cls = "=", "neu"
+    elif val > 0:
+        sign = "▲"
+        cls  = "neg" if invert else "pos"
+    else:
+        sign = "▼"
+        cls  = "pos" if invert else "neg"
+    prefix = f"{label} " if label else ""
+    return (f'<span style="font-size:11px;margin-left:6px;padding:1px 6px;border-radius:8px;'
+            f'background:#f7fafc;border:1px solid #e2e8f0;" class="{cls}">'
+            f'{prefix}{sign} {abs(val):.1f}{unit} vs prev</span>')
+
+
 def build_kpi_grid(s):
     end, start = s["end"], s["start"]
+    prev = s.get("prev")
     dw  = s["delta_greutate"]
     dg  = s["delta_grasime"]
     dbs = s["delta_body_score"]
@@ -504,32 +538,39 @@ def build_kpi_grid(s):
 
     prot_cls = "neg" if s["avg_prot"] < s["prot_opt_low"] else "pos"
 
+    prev_lbl = f"({ro_date(prev['data'])})" if prev else ""
+
+    pw_badge  = _prev_badge(s.get("prev_delta_greutate"),    " kg", invert=True)
+    pg_badge  = _prev_badge(s.get("prev_delta_grasime"),     "%",   invert=True)
+    pm_badge  = _prev_badge(s.get("prev_delta_musc_kg"),     " kg")
+    pbs_badge = _prev_badge(s.get("prev_delta_body_score"),  "",    invert=False)
+
     return f"""
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-label">Greutate</div>
       <div class="kpi-value">{end['greutate']} kg</div>
-      <div class="kpi-delta {w_cls}">{'▲' if dw>0 else '▼'} {abs(dw):.1f} kg fata de start ({start['greutate']} kg)</div>
+      <div class="kpi-delta {w_cls}">{'▲' if dw>0 else '▼'} {abs(dw):.1f} kg vs start ({start['greutate']} kg){pw_badge}</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Grasime corporala</div>
       <div class="kpi-value">{end['grasime_proc'] or '—'}%</div>
-      <div class="kpi-delta {g_cls}">{'▲' if dg>0 else '▼'} {abs(dg):.1f}% fata de start ({start['grasime_proc']}%)</div>
+      <div class="kpi-delta {g_cls}">{'▲' if dg>0 else '▼'} {abs(dg):.1f}% vs start ({start['grasime_proc']}%){pg_badge}</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Masa musculara</div>
       <div class="kpi-value">{end['masa_musc_kg'] or '—'} kg</div>
-      <div class="kpi-delta neu">Estimat · {end['musc_proc'] or '—'}% din greutate</div>
+      <div class="kpi-delta neu">{end['musc_proc'] or '—'}% din greutate{pm_badge}</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Body Score</div>
       <div class="kpi-value">{int(end['body_score']) if end['body_score'] else '—'}</div>
-      <div class="kpi-delta {bs_cls}">{'▲' if dbs>0 else '▼' if dbs<0 else '='} {abs(dbs)} fata de start ({int(start['body_score']) if start['body_score'] else '—'})</div>
+      <div class="kpi-delta {bs_cls}">{'▲' if dbs>0 else '▼' if dbs<0 else '='} {abs(dbs)} vs start ({int(start['body_score']) if start['body_score'] else '—'}){pbs_badge}</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Varsta corporala</div>
       <div class="kpi-value">{int(end['varsta_corp']) if end['varsta_corp'] else '—'} ani</div>
-      <div class="kpi-delta {v_cls}">{'▲' if dv>0 else '▼' if dv<0 else '='} {abs(dv)} ani fata de start ({int(start['varsta_corp']) if start['varsta_corp'] else '—'})</div>
+      <div class="kpi-delta {v_cls}">{'▲' if dv>0 else '▼' if dv<0 else '='} {abs(dv)} ani vs start ({int(start['varsta_corp']) if start['varsta_corp'] else '—'})</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Calorii arse (antren.)</div>
@@ -547,6 +588,75 @@ def build_kpi_grid(s):
       <div class="kpi-delta {prot_cls}">Optim: {s['prot_opt_low']:.0f}–{s['prot_opt_high']:.0f}g/zi</div>
     </div>
   </div>"""
+
+
+def build_prev_comparison(corp):
+    """Card de comparatie directa intre ultimele doua masuratori."""
+    if len(corp) < 2:
+        return ""
+    a, b = corp[-2], corp[-1]
+    days = (b["data"] - a["data"]).days
+
+    def row(label, field, unit="", invert=False, fmt="{:.1f}"):
+        va = a.get(field)
+        vb = b.get(field)
+        if va is None and vb is None:
+            return ""
+        va_txt = (fmt.format(va) + unit) if va is not None else "—"
+        vb_txt = (fmt.format(vb) + unit) if vb is not None else "—"
+        if va is not None and vb is not None:
+            diff = vb - va
+            if diff == 0:
+                sign, cls = "=", "neu"
+            elif diff > 0:
+                sign = "▲"
+                cls  = "neg" if invert else "pos"
+            else:
+                sign = "▼"
+                cls  = "pos" if invert else "neg"
+            diff_val = fmt.format(abs(diff))
+            diff_txt = f'<span class="{cls}">{sign} {diff_val}{unit}</span>'
+        else:
+            diff_txt = '<span class="neu">—</span>'
+        return f"""
+        <tr>
+          <td style="color:#718096;font-size:12px;">{label}</td>
+          <td style="font-weight:600;">{va_txt}</td>
+          <td style="font-weight:600;">{vb_txt}</td>
+          <td>{diff_txt}</td>
+        </tr>"""
+
+    html = f"""
+  <div class="table-wrap" style="margin-top:16px;">
+    <div style="padding:16px 20px 8px;border-bottom:1px solid #edf2f7;">
+      <span style="font-size:13px;font-weight:700;color:#2d3748;">
+        Comparatie directa: {ro_date(a['data'])} → {ro_date(b['data'])} ({days} zile)
+      </span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Indicator</th>
+          <th>{ro_date(a['data'])} {a['data'].year}</th>
+          <th>{ro_date(b['data'])} {b['data'].year} ★</th>
+          <th>Diferenta</th>
+        </tr>
+      </thead>
+      <tbody>"""
+
+    html += row("Greutate (kg)",      "greutate",    " kg", invert=True,  fmt="{:.1f}")
+    html += row("Grasime (%)",        "grasime_proc","%",   invert=True,  fmt="{:.1f}")
+    html += row("Masa musculara (kg)","masa_musc_kg"," kg", invert=False, fmt="{:.1f}")
+    html += row("BMR (kcal)",         "BMR",         " kcal",invert=False,fmt="{:.0f}")
+    html += row("Body Score",         "body_score",  "",    invert=False, fmt="{:.0f}")
+    html += row("Varsta corporala",   "varsta_corp", " ani",invert=True,  fmt="{:.0f}")
+    html += row("FC repaus (bpm)",    "FC_repaus",   " bpm",invert=True,  fmt="{:.0f}")
+
+    html += """
+      </tbody>
+    </table>
+  </div>"""
+    return html
 
 
 def build_corp_table(corp):
@@ -1017,6 +1127,7 @@ def generate():
     html += build_corp_table(corp)
     html += f"""
   <p style="font-size:11px;color:#a0aec0;margin-top:8px;padding-left:4px;">★ Ultima masurare. Valorile marcate cu ~ sunt estimate pe baza tendintei anterioare.</p>"""
+    html += build_prev_comparison(corp)
 
     # Nutrition
     if nutritie:

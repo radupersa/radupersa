@@ -53,7 +53,7 @@ def load_corp():
         for r in csv.DictReader(f):
             r["data"] = datetime.strptime(r["data"], "%Y-%m-%d")
             for k in ["greutate","grasime_proc","masa_musc_kg","musc_proc",
-                      "BMR","body_score","varsta_corp","FC_repaus"]:
+                      "BMR","body_score","varsta_corp","FC_repaus","visceral_fat"]:
                 r[k] = float(r[k]) if r.get(k) and r[k].strip() else None
             rows.append(r)
     return sorted(rows, key=lambda x: x["data"])
@@ -304,11 +304,12 @@ def analyze(corp, nutritie, activitati):
         "delta_grasime":  round((end["grasime_proc"] or 0) - (start["grasime_proc"] or 0), 1),
         "delta_body_score": int((end["body_score"] or 0) - (start["body_score"] or 0)),
         "delta_varsta":     int((end["varsta_corp"] or 0) - (start["varsta_corp"] or 0)),
-        "prev_delta_greutate":    _delta("greutate",    end, prev),
-        "prev_delta_grasime":     _delta("grasime_proc",end, prev),
-        "prev_delta_musc_kg":     _delta("masa_musc_kg",end, prev),
-        "prev_delta_body_score":  None if not (prev and end["body_score"] and prev["body_score"]) else int(end["body_score"] - prev["body_score"]),
-        "prev_delta_bmr":         None if not (prev and end["BMR"] and prev["BMR"]) else int(end["BMR"] - prev["BMR"]),
+        "prev_delta_greutate":      _delta("greutate",      end, prev),
+        "prev_delta_grasime":       _delta("grasime_proc",  end, prev),
+        "prev_delta_musc_kg":       _delta("masa_musc_kg",  end, prev),
+        "prev_delta_body_score":    None if not (prev and end["body_score"] and prev["body_score"]) else int(end["body_score"] - prev["body_score"]),
+        "prev_delta_bmr":           None if not (prev and end["BMR"] and prev["BMR"]) else int(end["BMR"] - prev["BMR"]),
+        "prev_delta_visceral_fat":  None if not (prev and end["visceral_fat"] and prev.get("visceral_fat")) else int(end["visceral_fat"] - prev["visceral_fat"]),
         "real":     real,
         "morning":  morning,
         "total_cal_burned": total_cal_burned,
@@ -579,10 +580,16 @@ def build_kpi_grid(s):
 
     prev_lbl = f"({ro_date(prev['data'])})" if prev else ""
 
-    pw_badge  = _prev_badge(s.get("prev_delta_greutate"),    " kg", invert=True)
-    pg_badge  = _prev_badge(s.get("prev_delta_grasime"),     "%",   invert=True)
-    pm_badge  = _prev_badge(s.get("prev_delta_musc_kg"),     " kg")
-    pbs_badge = _prev_badge(s.get("prev_delta_body_score"),  "",    invert=False)
+    pw_badge  = _prev_badge(s.get("prev_delta_greutate"),      " kg", invert=True)
+    pg_badge  = _prev_badge(s.get("prev_delta_grasime"),       "%",   invert=True)
+    pm_badge  = _prev_badge(s.get("prev_delta_musc_kg"),       " kg")
+    pbs_badge = _prev_badge(s.get("prev_delta_body_score"),    "",    invert=False)
+    pvf_badge = _prev_badge(s.get("prev_delta_visceral_fat"),  "",    invert=True)
+
+    vf       = end.get("visceral_fat")
+    vf_cls   = "pos" if vf and vf <= 9 else ("neg" if vf and vf >= 15 else "warn")
+    vf_label = "Normal (1–9)" if vf and vf <= 9 else ("Ridicat (10–14)" if vf and vf <= 14 else "Foarte ridicat (≥15)")
+    vf_color = "green" if vf and vf <= 9 else ("orange" if vf and vf <= 14 else "red")
 
     return f"""
   <div class="kpi-grid">
@@ -626,7 +633,136 @@ def build_kpi_grid(s):
       <div class="kpi-value">{s['avg_prot']:.0f}g</div>
       <div class="kpi-delta {prot_cls}">Optim: {s['prot_opt_low']:.0f}–{s['prot_opt_high']:.0f}g/zi</div>
     </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Grasime viscerala</div>
+      <div class="kpi-value {vf_cls}">{int(vf) if vf else '—'}</div>
+      <div class="kpi-delta {vf_cls}">{vf_label}{pvf_badge}</div>
+    </div>
   </div>"""
+
+
+def build_visceral_fat_section(vf_rows, s):
+    """Sectiune dedicata analizei grasimii viscerale."""
+    last_dt, last_vf = vf_rows[-1]
+    prev_dt, prev_vf = vf_rows[-2] if len(vf_rows) >= 2 else (None, None)
+    delta = int(last_vf - prev_vf) if prev_vf is not None else None
+
+    # Zone de risc
+    if last_vf <= 9:
+        zone, zone_cls, zone_desc = "Normal", "green", "In limite sanatoase. Continua sa mentii acest nivel."
+    elif last_vf <= 14:
+        zone, zone_cls, zone_desc = "Ridicat", "orange", "Depaseste limita normala (1–9). Necesita reducere activa prin dieta si cardio."
+    else:
+        zone, zone_cls, zone_desc = "Foarte ridicat", "red", "Risc cardiovascular si metabolic crescut. Consultatie medicala recomandata."
+
+    trend_txt = ""
+    if delta is not None:
+        if delta < 0:
+            trend_txt = f'<span class="pos">▼ {abs(delta)} fata de {ro_date(prev_dt)}</span> — tendinta pozitiva'
+        elif delta > 0:
+            trend_txt = f'<span class="neg">▲ {delta} fata de {ro_date(prev_dt)}</span> — tendinta negativa'
+        else:
+            trend_txt = f'<span class="neu">= stabil fata de {ro_date(prev_dt)}</span>'
+
+    # Bara vizuala (scara 1–20, zona rosie de la 10)
+    vf_pct = min(100, int(last_vf / 20 * 100))
+    bar_color = "green" if last_vf <= 9 else ("orange" if last_vf <= 14 else "red")
+    target_pct = int(8 / 20 * 100)   # tinta: 8 (mijlocul zonei normale)
+
+    html = f"""
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div class="table-wrap" style="padding:20px 24px;">
+      <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px;">Scor curent ({ro_date(last_dt)} {last_dt.year})</div>
+      <div style="font-size:48px;font-weight:800;color:{'#48bb78' if last_vf<=9 else '#ed8936' if last_vf<=14 else '#fc8181'};margin:8px 0 4px;">{int(last_vf)}</div>
+      <div style="font-size:13px;font-weight:700;color:#2d3748;">{zone} &nbsp; {trend_txt}</div>
+      <div style="margin-top:12px;">
+        <div style="font-size:11px;color:#718096;margin-bottom:4px;">Scara de risc (1–20+)</div>
+        <div style="position:relative;height:12px;background:#edf2f7;border-radius:6px;overflow:visible;">
+          <div style="position:absolute;left:0;top:0;height:100%;width:{target_pct}%;background:rgba(72,187,120,0.25);border-radius:6px 0 0 6px;"></div>
+          <div style="position:absolute;left:{target_pct}%;top:0;height:100%;width:{50-target_pct}%;background:rgba(237,137,54,0.25);"></div>
+          <div style="position:absolute;left:50%;top:0;height:100%;width:50%;background:rgba(252,129,129,0.25);border-radius:0 6px 6px 0;"></div>
+          <div style="position:absolute;top:-2px;left:{vf_pct}%;transform:translateX(-50%);width:16px;height:16px;background:{'#48bb78' if last_vf<=9 else '#ed8936' if last_vf<=14 else '#fc8181'};border-radius:50%;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#a0aec0;margin-top:4px;">
+          <span>1</span><span style="color:#48bb78;">Normal ≤9</span><span style="color:#ed8936;">Ridicat 10–14</span><span style="color:#fc8181;">Risc ≥15</span><span>20</span>
+        </div>
+      </div>
+    </div>
+    <div class="table-wrap" style="padding:20px 24px;">
+      <div style="font-size:13px;font-weight:700;color:#2d3748;margin-bottom:12px;">Ce este grasimea viscerala?</div>
+      <p style="font-size:13px;color:#718096;line-height:1.7;">
+        Grasimea viscerala inconjoara organele interne (ficat, pancreas, intestine). Spre deosebire de grasimea subcutanata (vizibila sub piele),
+        <strong>viscerala este metabolic activa</strong> — elibereaza hormoni inflamatori, creste rezistenta la insulina si riscul cardiovascular,
+        independent de greutatea totala.
+      </p>
+      <div style="margin-top:12px;padding:10px 14px;background:#fffaf0;border-radius:8px;border-left:3px solid #ed8936;">
+        <div style="font-size:12px;font-weight:700;color:#c05621;">Scor {int(last_vf)} = {zone}</div>
+        <div style="font-size:12px;color:#718096;margin-top:2px;">{zone_desc}</div>
+      </div>
+    </div>
+  </div>"""
+
+    # Tabel cu istoricul valorilor cunoscute
+    if len(vf_rows) >= 2:
+        html += """
+  <div class="table-wrap">
+    <div style="padding:12px 20px 8px;border-bottom:1px solid #edf2f7;font-size:13px;font-weight:700;color:#2d3748;">
+      Evolutie visceral fat
+    </div>
+    <table>
+      <thead><tr><th>Data</th><th>Scor</th><th>Zona</th><th>Tendinta</th></tr></thead>
+      <tbody>"""
+        for i, (dt, vf) in enumerate(vf_rows):
+            z = "Normal" if vf <= 9 else ("Ridicat" if vf <= 14 else "Foarte ridicat")
+            z_color = "#48bb78" if vf <= 9 else ("#ed8936" if vf <= 14 else "#fc8181")
+            if i > 0:
+                d = int(vf - vf_rows[i-1][1])
+                if d < 0:
+                    trend = f'<span class="pos">▼ {abs(d)}</span>'
+                elif d > 0:
+                    trend = f'<span class="neg">▲ {d}</span>'
+                else:
+                    trend = '<span class="neu">=</span>'
+            else:
+                trend = '<span class="neu">—</span>'
+            html += f"""
+        <tr{"  class='row-bad'" if vf >= 15 else "  class='row-warn'" if vf >= 10 else "  class='row-good'"}>
+          <td>{ro_date(dt)} {dt.year}</td>
+          <td><strong style="color:{z_color};font-size:18px;">{int(vf)}</strong></td>
+          <td style="color:{z_color};font-weight:600;">{z}</td>
+          <td>{trend}</td>
+        </tr>"""
+        html += """
+      </tbody>
+    </table>
+  </div>"""
+
+    # Recomandari specifice
+    html += f"""
+  <div class="insight-grid" style="margin-top:16px;">
+    <div class="insight {'orange' if last_vf >= 10 else 'green'}">
+      <h3>{'⚠ Prioritate: reducere visceral fat sub 9' if last_vf >= 10 else '✓ Visceral fat in zona normala — mentine'}</h3>
+      <p>{'Scorul de <strong>' + str(int(last_vf)) + '</strong> se afla in zona <strong>' + zone + '</strong>. Tinta imediata: sub <strong>9</strong>. ' if last_vf >= 10 else ''}
+      Grasimea viscerala raspunde <strong>cel mai bine la:</strong>
+      (1) deficit caloric moderat (300–500 kcal/zi),
+      (2) cardio de intensitate moderata (zone 2: 65–75% FC max) 3–4×/saptamana — ciclismul tau este ideal,
+      (3) proteina ridicata care conserva masa musculara in deficit.</p>
+    </div>
+    <div class="insight blue">
+      <h3>Cardio zone 2 = cel mai eficient instrument</h3>
+      <p>Studiile arata ca grasimea viscerala se reduce preferential prin efort aerobic de durata la intensitate moderata.
+      O sesiune de cycling de <strong>45–60 min la 65–75% FC max</strong> ({int((s['end']['FC_repaus'] or 73) * 0.65 * 3.5):.0f}–{int((s['end']['FC_repaus'] or 73) * 0.75 * 3.5):.0f} bpm estimat) consuma preponderent grasime viscerala ca sursa de energie.
+      {'Scaderea de ' + str(abs(delta)) + ' punct din ' + ro_date(prev_dt) + ' pana acum confirma ca abordarea curenta functioneaza.' if (delta and delta < 0) else ''}</p>
+    </div>
+    <div class="insight purple">
+      <h3>Tinta realista: scor ≤8 in 6–8 saptamani</h3>
+      <p>Cu antrenament consistent (Push/Pull/Legs + 2 sesiuni cardio/saptamana) si deficit caloric de 300–400 kcal/zi,
+      o reducere de <strong>2–3 puncte in 6–8 saptamani</strong> este realista.
+      Tinta intermediara: <strong>sub 9</strong> (zona normala) · Tinta finala: <strong>7–8</strong> (optim).</p>
+    </div>
+  </div>"""
+
+    return html
 
 
 def build_prev_comparison(corp):
@@ -683,13 +819,14 @@ def build_prev_comparison(corp):
       </thead>
       <tbody>"""
 
-    html += row("Greutate (kg)",      "greutate",    " kg", invert=True,  fmt="{:.1f}")
-    html += row("Grasime (%)",        "grasime_proc","%",   invert=True,  fmt="{:.1f}")
-    html += row("Masa musculara (kg)","masa_musc_kg"," kg", invert=False, fmt="{:.1f}")
-    html += row("BMR (kcal)",         "BMR",         " kcal",invert=False,fmt="{:.0f}")
-    html += row("Body Score",         "body_score",  "",    invert=False, fmt="{:.0f}")
-    html += row("Varsta corporala",   "varsta_corp", " ani",invert=True,  fmt="{:.0f}")
-    html += row("FC repaus (bpm)",    "FC_repaus",   " bpm",invert=True,  fmt="{:.0f}")
+    html += row("Greutate (kg)",        "greutate",     " kg",  invert=True,  fmt="{:.1f}")
+    html += row("Grasime (%)",          "grasime_proc", "%",    invert=True,  fmt="{:.1f}")
+    html += row("Masa musculara (kg)",  "masa_musc_kg", " kg",  invert=False, fmt="{:.1f}")
+    html += row("BMR (kcal)",           "BMR",          " kcal",invert=False, fmt="{:.0f}")
+    html += row("Body Score",           "body_score",   "",     invert=False, fmt="{:.0f}")
+    html += row("Varsta corporala",     "varsta_corp",  " ani", invert=True,  fmt="{:.0f}")
+    html += row("FC repaus (bpm)",      "FC_repaus",    " bpm", invert=True,  fmt="{:.0f}")
+    html += row("Visceral Fat (scor)",  "visceral_fat", "",     invert=True,  fmt="{:.0f}")
 
     html += """
       </tbody>
@@ -714,7 +851,7 @@ def build_corp_table(corp):
           <th>Data</th><th>Greutate</th><th>Grasime %</th>
           <th>Masa musc. (kg)</th><th>Musc. %</th>
           <th>BMR (kcal)</th><th>Body Score</th>
-          <th>Varsta corp.</th><th>FC repaus</th>
+          <th>Varsta corp.</th><th>FC repaus</th><th>Visceral Fat</th>
         </tr>
       </thead>
       <tbody>"""
@@ -735,6 +872,12 @@ def build_corp_table(corp):
         musc = r["masa_musc_kg"] or "—"
         musc_p = r["musc_proc"] or "—"
         bmr  = int(r["BMR"]) if r["BMR"] else "—"
+        vf   = r.get("visceral_fat")
+        if vf:
+            vf_color_cell = "#48bb78" if vf <= 9 else ("#ed8936" if vf <= 14 else "#fc8181")
+            vf_cell = f'<strong style="color:{vf_color_cell};">{int(vf)}</strong>'
+        else:
+            vf_cell = "—"
 
         html += f"""
         <tr class="{rc}">
@@ -747,6 +890,7 @@ def build_corp_table(corp):
           <td><strong>{bs}</strong></td>
           <td>{vc}</td>
           <td>{fc}</td>
+          <td>{vf_cell}</td>
         </tr>"""
 
     html += """
@@ -1174,6 +1318,12 @@ def generate():
     html += f"""
   <p style="font-size:11px;color:#a0aec0;margin-top:8px;padding-left:4px;">★ Ultima masurare. Valorile marcate cu ~ sunt estimate pe baza tendintei anterioare.</p>"""
     html += build_prev_comparison(corp)
+
+    # Visceral fat analysis
+    vf_rows = [(r["data"], r["visceral_fat"]) for r in corp if r.get("visceral_fat")]
+    if vf_rows:
+        html += '\n  <div class="section-title orange">Grasime viscerala — analiza si tendinte</div>'
+        html += build_visceral_fat_section(vf_rows, s)
 
     # Nutrition
     if nutritie:

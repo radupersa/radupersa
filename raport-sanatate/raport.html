@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raport Sanatate — 25 Jul 2026</title>
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f4f8; color: #1a202c; }
+
+.header { background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%); color: white; padding: 40px 48px; }
+.header h1 { font-size: 28px; font-weight: 700; }
+.header p  { margin-top: 6px; color: #a0aec0; font-size: 14px; }
+.header .badge { display: inline-block; margin-top: 12px; font-size: 11px; font-weight: 600;
+  background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 12px; color: #e2e8f0; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+.section-title { font-size: 18px; font-weight: 700; color: #2d3748;
+  margin: 36px 0 16px; border-left: 4px solid #fc8181; padding-left: 12px; }
+.section-title.blue   { border-left-color: #4299e1; }
+.section-title.green  { border-left-color: #48bb78; }
+.section-title.orange { border-left-color: #ed8936; }
+.section-title.purple { border-left-color: #9f7aea; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+.kpi-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: #718096; }
+.kpi-value { font-size: 28px; font-weight: 700; color: #2d3748; margin: 6px 0 2px; }
+.kpi-delta { font-size: 13px; }
+.pos { color: #48bb78; } .neg { color: #fc8181; } .neu { color: #a0aec0; } .warn { color: #ed8936; }
+
+.alert { background: #fff5f5; border: 1px solid #fed7d7; border-left: 4px solid #fc8181;
+  border-radius: 8px; padding: 16px 20px; margin-bottom: 8px; }
+.alert.orange { background: #fffaf0; border-color: #fbd38d; border-left-color: #ed8936; }
+.alert.green  { background: #f0fff4; border-color: #9ae6b4; border-left-color: #48bb78; }
+.alert.blue   { background: #ebf8ff; border-color: #90cdf4; border-left-color: #4299e1; }
+.alert h3 { font-size: 14px; font-weight: 700; color: #c53030; margin-bottom: 4px; }
+.alert.orange h3 { color: #c05621; }
+.alert.green  h3 { color: #276749; }
+.alert.blue   h3 { color: #2b6cb0; }
+.alert p { font-size: 13px; color: #718096; line-height: 1.6; }
+.alert strong { color: #2d3748; }
+
+.table-wrap { background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #edf2f7; padding: 11px 16px; text-align: left; font-size: 11px;
+  text-transform: uppercase; letter-spacing: .5px; color: #718096; }
+td { padding: 11px 16px; border-top: 1px solid #f7fafc; }
+tr:hover td { background: #f7fafc; }
+.row-bad  { background: #fff5f5 !important; }
+.row-good { background: #f0fff4 !important; }
+.row-warn { background: #fffaf0 !important; }
+
+.bar-wrap { display: flex; align-items: center; gap: 8px; }
+.bar-bg   { flex: 1; background: #edf2f7; border-radius: 4px; height: 8px; max-width: 120px; }
+.bar-fill { height: 100%; border-radius: 4px; }
+.bar-blue   { background: #4299e1; }
+.bar-green  { background: #48bb78; }
+.bar-orange { background: #ed8936; }
+.bar-red    { background: #fc8181; }
+.bar-purple { background: #9f7aea; }
+
+.insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.insight { background: white; border-radius: 12px; padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-top: 3px solid #4299e1; }
+.insight.green  { border-top-color: #48bb78; }
+.insight.orange { border-top-color: #ed8936; }
+.insight.red    { border-top-color: #fc8181; }
+.insight.purple { border-top-color: #9f7aea; }
+.insight h3 { font-size: 14px; font-weight: 700; color: #2d3748; margin-bottom: 8px; }
+.insight p  { font-size: 13px; color: #718096; line-height: 1.6; }
+.insight strong { color: #2d3748; }
+
+.timeline { position: relative; }
+.timeline::before { content: ''; position: absolute; left: 20px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; }
+.tl-item { position: relative; padding: 0 0 24px 52px; }
+.tl-dot { position: absolute; left: 10px; top: 4px; width: 22px; height: 22px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: white; }
+.tl-dot.training { background: #4299e1; }
+.tl-dot.cycling  { background: #ed8936; }
+.tl-dot.morning  { background: #a0aec0; }
+.tl-date  { font-size: 11px; color: #a0aec0; text-transform: uppercase; letter-spacing: .5px; }
+.tl-title { font-size: 15px; font-weight: 700; color: #2d3748; margin: 2px 0 4px; }
+.tl-meta  { font-size: 13px; color: #718096; }
+.tl-badge { display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 12px; margin: 4px 4px 0 0; }
+.badge-blue   { background: #ebf8ff; color: #2b6cb0; }
+.badge-green  { background: #f0fff4; color: #276749; }
+.badge-orange { background: #fffaf0; color: #c05621; }
+.badge-red    { background: #fff5f5; color: #c53030; }
+.badge-gray   { background: #edf2f7; color: #718096; }
+
+.nutrition-day { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f7fafc; }
+.nutrition-day:last-child { border-bottom: none; }
+.nut-date     { font-size: 12px; font-weight: 700; color: #718096; width: 50px; flex-shrink: 0; }
+.nut-bar-wrap { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.nut-bar-row  { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #a0aec0; }
+.nut-bar-bg   { flex: 1; background: #edf2f7; border-radius: 3px; height: 6px; max-width: 240px; }
+.nut-bar-fill { height: 100%; border-radius: 3px; }
+.nut-label { width: 34px; }
+.nut-value { width: 60px; text-align: right; font-size: 12px; font-weight: 600; color: #2d3748; }
+
+.macro-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px;
+  font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-right: 4px; }
+.macro-p { background: #ebf8ff; color: #2b6cb0; }
+.macro-f { background: #fffaf0; color: #c05621; }
+.macro-c { background: #f0fff4; color: #276749; }
+
+footer { text-align: center; padding: 32px; color: #a0aec0; font-size: 12px; }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Raport Sanatate &amp; Performanta</h1>
+  <p>Persa Radu · Perioada: 10 Mai 2026 → 25 Iul 2026 · 12 masuratori corporale · 39 antrenamente reale</p>
+  <span class="badge">Actualizat 26 July 2026 · Nutritie 6 Iun–24 Iul &amp; activitate Strava</span>
+</div>
+
+<div class="container">
+<div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+    <div class="alert green">
+      <h3>✓ Antrenament consistent — pauza trecuta de 17 zile (29 Iun–15 Iul) depasita</h3>
+      <p>A existat o pauza intre <strong>29 Iun si 15 Iul</strong>, dar ai reluat antrenamentul
+      si esti activ. Continua ritmul!</p>
+    </div></div>
+  <div class="section-title blue" style="margin-top:32px;">Evolutie globala (10 Mai = start → 25 Iul = actual)</div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Greutate</div>
+      <div class="kpi-value">77.9 kg</div>
+      <div class="kpi-delta neg">▲ 0.2 kg vs start (77.7 kg)<span style="font-size:11px;margin-left:6px;padding:1px 6px;border-radius:8px;background:#f7fafc;border:1px solid #e2e8f0;" class="neg">▲ 0.5 kg vs prev</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Grasime corporala</div>
+      <div class="kpi-value">23.1%</div>
+      <div class="kpi-delta neg">▲ 0.6% vs start (22.5%)<span style="font-size:11px;margin-left:6px;padding:1px 6px;border-radius:8px;background:#f7fafc;border:1px solid #e2e8f0;" class="neu">= 0.0% vs prev</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Masa musculara</div>
+      <div class="kpi-value">56.7 kg</div>
+      <div class="kpi-delta neu">72.8% din greutate<span style="font-size:11px;margin-left:6px;padding:1px 6px;border-radius:8px;background:#f7fafc;border:1px solid #e2e8f0;" class="pos">▲ 0.3 kg vs prev</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Body Score</div>
+      <div class="kpi-value">81</div>
+      <div class="kpi-delta neu">= 0 vs start (81)<span style="font-size:11px;margin-left:6px;padding:1px 6px;border-radius:8px;background:#f7fafc;border:1px solid #e2e8f0;" class="pos">▲ 1.0 vs prev</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Varsta corporala</div>
+      <div class="kpi-value">54 ani</div>
+      <div class="kpi-delta neg">▲ 1 ani vs start (53)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Calorii arse (antren.)</div>
+      <div class="kpi-value">14,049</div>
+      <div class="kpi-delta neu">39 sesiuni reale · 235.1 km</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Medie kcal/zi (logat)</div>
+      <div class="kpi-value">1728</div>
+      <div class="kpi-delta neu">TDEE estimat: ~2413 kcal/zi</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Proteina medie/zi</div>
+      <div class="kpi-value">122g</div>
+      <div class="kpi-delta pos">Optim: 91–125g/zi</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Grasime viscerala</div>
+      <div class="kpi-value warn">10</div>
+      <div class="kpi-delta warn">Ridicat (10–14)<span style="font-size:11px;margin-left:6px;padding:1px 6px;border-radius:8px;background:#f7fafc;border:1px solid #e2e8f0;" class="pos">▼ 1.0 vs prev</span></div>
+    </div>
+  </div>
+  <div class="section-title">Compozitie corporala — evolutie cronologica</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th><th>Greutate</th><th>Grasime %</th>
+          <th>Masa musc. (kg)</th><th>Musc. %</th>
+          <th>BMR (kcal)</th><th>Body Score</th>
+          <th>Varsta corp.</th><th>FC repaus</th><th>Visceral Fat</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-good">
+          <td><strong>10 Mai</strong> <span style="color:#a0aec0;font-size:11px;">start</span></td>
+          <td>77.7 kg</td>
+          <td><div class="bar-wrap">22.5% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:75%"></div></div></div></td>
+          <td>56.6 kg</td>
+          <td>55.3%</td>
+          <td>1660</td>
+          <td><strong>81</strong></td>
+          <td>53</td>
+          <td>107</td>
+          <td><strong style="color:#48bb78;">9</strong></td>
+        </tr>
+        <tr class="">
+          <td><strong>16 Mai</strong></td>
+          <td>77.7 kg</td>
+          <td><div class="bar-wrap">23.0% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:76%"></div></div></div></td>
+          <td>56.7 kg</td>
+          <td>52.6%</td>
+          <td>1662</td>
+          <td><strong>81</strong></td>
+          <td>54</td>
+          <td>96</td>
+          <td><strong style="color:#ed8936;">11</strong></td>
+        </tr>
+        <tr class="">
+          <td><strong>23 Mai</strong></td>
+          <td>77.2 kg</td>
+          <td><div class="bar-wrap">22.7% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:75%"></div></div></div></td>
+          <td>56.6 kg</td>
+          <td>54.3%</td>
+          <td>1660</td>
+          <td><strong>81</strong></td>
+          <td>54</td>
+          <td>105</td>
+          <td><strong style="color:#ed8936;">10</strong></td>
+        </tr>
+        <tr class="">
+          <td><strong>1 Iun</strong></td>
+          <td>78.2 kg</td>
+          <td><div class="bar-wrap">23.4% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:77%"></div></div></div></td>
+          <td>56.9 kg</td>
+          <td>50.5%</td>
+          <td>1664</td>
+          <td><strong>80</strong></td>
+          <td>54</td>
+          <td>75</td>
+          <td><strong style="color:#ed8936;">13</strong></td>
+        </tr>
+        <tr class="">
+          <td><strong>6 Iun</strong></td>
+          <td>78.7 kg</td>
+          <td><div class="bar-wrap">23.5% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:78%"></div></div></div></td>
+          <td>57.1 kg</td>
+          <td>53.0%</td>
+          <td>1670</td>
+          <td><strong>80</strong></td>
+          <td>54</td>
+          <td>94</td>
+          <td><strong style="color:#ed8936;">11</strong></td>
+        </tr>
+        <tr class="">
+          <td><strong>15 Iun</strong></td>
+          <td>80.0 kg</td>
+          <td><div class="bar-wrap">24.5% <div class="bar-bg"><div class="bar-fill bar-red" style="width:81%"></div></div></div></td>
+          <td>57.5 kg</td>
+          <td>52.0%</td>
+          <td>1680</td>
+          <td><strong>80</strong></td>
+          <td>54</td>
+          <td>—</td>
+          <td><strong style="color:#ed8936;">11</strong></td>
+        </tr>
+        <tr class="">
+          <td><strong>20 Iun</strong></td>
+          <td>79.1 kg</td>
+          <td><div class="bar-wrap">23.6% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:78%"></div></div></div></td>
+          <td>57.1 kg</td>
+          <td>72.3%</td>
+          <td>1675</td>
+          <td><strong>81</strong></td>
+          <td>54</td>
+          <td>73</td>
+          <td><strong style="color:#ed8936;">10</strong></td>
+        </tr>
+        <tr class="">
+          <td><strong>27 Iun</strong></td>
+          <td>78.5 kg</td>
+          <td><div class="bar-wrap">23.2% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:77%"></div></div></div></td>
+          <td>57.1 kg</td>
+          <td>72.7%</td>
+          <td>1672</td>
+          <td><strong>81</strong></td>
+          <td>54</td>
+          <td>84</td>
+          <td><strong style="color:#48bb78;">9</strong></td>
+        </tr>
+        <tr class="">
+          <td><strong>4 Iul</strong></td>
+          <td>77.4 kg</td>
+          <td><div class="bar-wrap">23.0% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:76%"></div></div></div></td>
+          <td>56.6 kg</td>
+          <td>73.1%</td>
+          <td>1657</td>
+          <td><strong>80</strong></td>
+          <td>54</td>
+          <td>78</td>
+          <td><strong style="color:#ed8936;">12</strong></td>
+        </tr>
+        <tr class="">
+          <td><strong>11 Iul</strong></td>
+          <td>78.1 kg</td>
+          <td><div class="bar-wrap">23.4% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:77%"></div></div></div></td>
+          <td>56.7 kg</td>
+          <td>72.6%</td>
+          <td>1662</td>
+          <td><strong>80</strong></td>
+          <td>54</td>
+          <td>94</td>
+          <td><strong style="color:#ed8936;">12</strong></td>
+        </tr>
+        <tr class="">
+          <td><strong>18 Iul</strong></td>
+          <td>77.4 kg</td>
+          <td><div class="bar-wrap">23.1% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:77%"></div></div></div></td>
+          <td>56.4 kg</td>
+          <td>72.9%</td>
+          <td>1655</td>
+          <td><strong>80</strong></td>
+          <td>54</td>
+          <td>98</td>
+          <td><strong style="color:#ed8936;">11</strong></td>
+        </tr>
+        <tr class="row-bad">
+          <td><strong>25 Iul</strong> <span style="color:#fc8181;font-size:11px;">actual ★</span></td>
+          <td>77.9 kg</td>
+          <td><div class="bar-wrap">23.1% <div class="bar-bg"><div class="bar-fill bar-orange" style="width:77%"></div></div></div></td>
+          <td>~56.7 kg</td>
+          <td>~72.8%</td>
+          <td>~1664</td>
+          <td><strong>81</strong></td>
+          <td>54</td>
+          <td>89</td>
+          <td><strong style="color:#ed8936;">10</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:11px;color:#a0aec0;margin-top:8px;padding-left:4px;">★ Ultima masurare. Valorile marcate cu ~ sunt estimate pe baza tendintei anterioare.</p>
+  <div class="table-wrap" style="margin-top:16px;">
+    <div style="padding:16px 20px 8px;border-bottom:1px solid #edf2f7;">
+      <span style="font-size:13px;font-weight:700;color:#2d3748;">
+        Comparatie directa: 18 Iul → 25 Iul (7 zile)
+      </span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Indicator</th>
+          <th>18 Iul 2026</th>
+          <th>25 Iul 2026 ★</th>
+          <th>Diferenta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:#718096;font-size:12px;">Greutate (kg)</td>
+          <td style="font-weight:600;">77.4 kg</td>
+          <td style="font-weight:600;">77.9 kg</td>
+          <td><span class="neg">▲ 0.5 kg</span></td>
+        </tr>
+        <tr>
+          <td style="color:#718096;font-size:12px;">Grasime (%)</td>
+          <td style="font-weight:600;">23.1%</td>
+          <td style="font-weight:600;">23.1%</td>
+          <td><span class="neu">= 0.0%</span></td>
+        </tr>
+        <tr>
+          <td style="color:#718096;font-size:12px;">Masa musculara (kg)</td>
+          <td style="font-weight:600;">56.4 kg</td>
+          <td style="font-weight:600;">56.7 kg</td>
+          <td><span class="pos">▲ 0.3 kg</span></td>
+        </tr>
+        <tr>
+          <td style="color:#718096;font-size:12px;">BMR (kcal)</td>
+          <td style="font-weight:600;">1655 kcal</td>
+          <td style="font-weight:600;">1664 kcal</td>
+          <td><span class="pos">▲ 9 kcal</span></td>
+        </tr>
+        <tr>
+          <td style="color:#718096;font-size:12px;">Body Score</td>
+          <td style="font-weight:600;">80</td>
+          <td style="font-weight:600;">81</td>
+          <td><span class="pos">▲ 1</span></td>
+        </tr>
+        <tr>
+          <td style="color:#718096;font-size:12px;">Varsta corporala</td>
+          <td style="font-weight:600;">54 ani</td>
+          <td style="font-weight:600;">54 ani</td>
+          <td><span class="neu">= 0 ani</span></td>
+        </tr>
+        <tr>
+          <td style="color:#718096;font-size:12px;">FC repaus (bpm)</td>
+          <td style="font-weight:600;">98 bpm</td>
+          <td style="font-weight:600;">89 bpm</td>
+          <td><span class="pos">▼ 9 bpm</span></td>
+        </tr>
+        <tr>
+          <td style="color:#718096;font-size:12px;">Visceral Fat (scor)</td>
+          <td style="font-weight:600;">11</td>
+          <td style="font-weight:600;">10</td>
+          <td><span class="pos">▼ 1</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section-title orange">Grasime viscerala — analiza si tendinte</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div class="table-wrap" style="padding:20px 24px;">
+      <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px;">Scor curent (25 Iul 2026)</div>
+      <div style="font-size:48px;font-weight:800;color:#ed8936;margin:8px 0 4px;">10</div>
+      <div style="font-size:13px;font-weight:700;color:#2d3748;">Ridicat &nbsp; <span class="pos">▼ 1 fata de 18 Iul</span> — tendinta pozitiva</div>
+      <div style="margin-top:12px;">
+        <div style="font-size:11px;color:#718096;margin-bottom:4px;">Scara de risc (1–20+)</div>
+        <div style="position:relative;height:12px;background:#edf2f7;border-radius:6px;overflow:visible;">
+          <div style="position:absolute;left:0;top:0;height:100%;width:40%;background:rgba(72,187,120,0.25);border-radius:6px 0 0 6px;"></div>
+          <div style="position:absolute;left:40%;top:0;height:100%;width:10%;background:rgba(237,137,54,0.25);"></div>
+          <div style="position:absolute;left:50%;top:0;height:100%;width:50%;background:rgba(252,129,129,0.25);border-radius:0 6px 6px 0;"></div>
+          <div style="position:absolute;top:-2px;left:50%;transform:translateX(-50%);width:16px;height:16px;background:#ed8936;border-radius:50%;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#a0aec0;margin-top:4px;">
+          <span>1</span><span style="color:#48bb78;">Normal ≤9</span><span style="color:#ed8936;">Ridicat 10–14</span><span style="color:#fc8181;">Risc ≥15</span><span>20</span>
+        </div>
+      </div>
+    </div>
+    <div class="table-wrap" style="padding:20px 24px;">
+      <div style="font-size:13px;font-weight:700;color:#2d3748;margin-bottom:12px;">Ce este grasimea viscerala?</div>
+      <p style="font-size:13px;color:#718096;line-height:1.7;">
+        Grasimea viscerala inconjoara organele interne (ficat, pancreas, intestine). Spre deosebire de grasimea subcutanata (vizibila sub piele),
+        <strong>viscerala este metabolic activa</strong> — elibereaza hormoni inflamatori, creste rezistenta la insulina si riscul cardiovascular,
+        independent de greutatea totala.
+      </p>
+      <div style="margin-top:12px;padding:10px 14px;background:#fffaf0;border-radius:8px;border-left:3px solid #ed8936;">
+        <div style="font-size:12px;font-weight:700;color:#c05621;">Scor 10 = Ridicat</div>
+        <div style="font-size:12px;color:#718096;margin-top:2px;">Depaseste limita normala (1–9). Necesita reducere activa prin dieta si cardio.</div>
+      </div>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div style="padding:12px 20px 8px;border-bottom:1px solid #edf2f7;font-size:13px;font-weight:700;color:#2d3748;">
+      Evolutie visceral fat
+    </div>
+    <table>
+      <thead><tr><th>Data</th><th>Scor</th><th>Zona</th><th>Tendinta</th></tr></thead>
+      <tbody>
+        <tr  class='row-good'>
+          <td>10 Mai 2026</td>
+          <td><strong style="color:#48bb78;font-size:18px;">9</strong></td>
+          <td style="color:#48bb78;font-weight:600;">Normal</td>
+          <td><span class="neu">—</span></td>
+        </tr>
+        <tr  class='row-warn'>
+          <td>16 Mai 2026</td>
+          <td><strong style="color:#ed8936;font-size:18px;">11</strong></td>
+          <td style="color:#ed8936;font-weight:600;">Ridicat</td>
+          <td><span class="neg">▲ 2</span></td>
+        </tr>
+        <tr  class='row-warn'>
+          <td>23 Mai 2026</td>
+          <td><strong style="color:#ed8936;font-size:18px;">10</strong></td>
+          <td style="color:#ed8936;font-weight:600;">Ridicat</td>
+          <td><span class="pos">▼ 1</span></td>
+        </tr>
+        <tr  class='row-warn'>
+          <td>1 Iun 2026</td>
+          <td><strong style="color:#ed8936;font-size:18px;">13</strong></td>
+          <td style="color:#ed8936;font-weight:600;">Ridicat</td>
+          <td><span class="neg">▲ 3</span></td>
+        </tr>
+        <tr  class='row-warn'>
+          <td>6 Iun 2026</td>
+          <td><strong style="color:#ed8936;font-size:18px;">11</strong></td>
+          <td style="color:#ed8936;font-weight:600;">Ridicat</td>
+          <td><span class="pos">▼ 2</span></td>
+        </tr>
+        <tr  class='row-warn'>
+          <td>15 Iun 2026</td>
+          <td><strong style="color:#ed8936;font-size:18px;">11</strong></td>
+          <td style="color:#ed8936;font-weight:600;">Ridicat</td>
+          <td><span class="neu">=</span></td>
+        </tr>
+        <tr  class='row-warn'>
+          <td>20 Iun 2026</td>
+          <td><strong style="color:#ed8936;font-size:18px;">10</strong></td>
+          <td style="color:#ed8936;font-weight:600;">Ridicat</td>
+          <td><span class="pos">▼ 1</span></td>
+        </tr>
+        <tr  class='row-good'>
+          <td>27 Iun 2026</td>
+          <td><strong style="color:#48bb78;font-size:18px;">9</strong></td>
+          <td style="color:#48bb78;font-weight:600;">Normal</td>
+          <td><span class="pos">▼ 1</span></td>
+        </tr>
+        <tr  class='row-warn'>
+          <td>4 Iul 2026</td>
+          <td><strong style="color:#ed8936;font-size:18px;">12</strong></td>
+          <td style="color:#ed8936;font-weight:600;">Ridicat</td>
+          <td><span class="neg">▲ 3</span></td>
+        </tr>
+        <tr  class='row-warn'>
+          <td>11 Iul 2026</td>
+          <td><strong style="color:#ed8936;font-size:18px;">12</strong></td>
+          <td style="color:#ed8936;font-weight:600;">Ridicat</td>
+          <td><span class="neu">=</span></td>
+        </tr>
+        <tr  class='row-warn'>
+          <td>18 Iul 2026</td>
+          <td><strong style="color:#ed8936;font-size:18px;">11</strong></td>
+          <td style="color:#ed8936;font-weight:600;">Ridicat</td>
+          <td><span class="pos">▼ 1</span></td>
+        </tr>
+        <tr  class='row-warn'>
+          <td>25 Iul 2026</td>
+          <td><strong style="color:#ed8936;font-size:18px;">10</strong></td>
+          <td style="color:#ed8936;font-weight:600;">Ridicat</td>
+          <td><span class="pos">▼ 1</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="insight-grid" style="margin-top:16px;">
+    <div class="insight orange">
+      <h3>⚠ Prioritate: reducere visceral fat sub 9</h3>
+      <p>Scorul de <strong>10</strong> se afla in zona <strong>Ridicat</strong>. Tinta imediata: sub <strong>9</strong>. 
+      Grasimea viscerala raspunde <strong>cel mai bine la:</strong>
+      (1) deficit caloric moderat (300–500 kcal/zi),
+      (2) cardio de intensitate moderata (zone 2: 65–75% FC max) 3–4×/saptamana — ciclismul tau este ideal,
+      (3) proteina ridicata care conserva masa musculara in deficit.</p>
+    </div>
+    <div class="insight blue">
+      <h3>Cardio zone 2 = cel mai eficient instrument</h3>
+      <p>Studiile arata ca grasimea viscerala se reduce preferential prin efort aerobic de durata la intensitate moderata.
+      O sesiune de cycling de <strong>45–60 min la 65–75% FC max</strong> (202–233 bpm estimat) consuma preponderent grasime viscerala ca sursa de energie.
+      Scaderea de 1 punct din 18 Iul pana acum confirma ca abordarea curenta functioneaza.</p>
+    </div>
+    <div class="insight purple">
+      <h3>Tinta realista: scor ≤8 in 6–8 saptamani</h3>
+      <p>Cu antrenament consistent (Push/Pull/Legs + 2 sesiuni cardio/saptamana) si deficit caloric de 300–400 kcal/zi,
+      o reducere de <strong>2–3 puncte in 6–8 saptamani</strong> este realista.
+      Tinta intermediara: <strong>sub 9</strong> (zona normala) · Tinta finala: <strong>7–8</strong> (optim).</p>
+    </div>
+  </div>
+  <div class="section-title green">Nutritie — Analiza zilnica 6 Iun–24 Iul</div><div class="table-wrap" style="padding: 20px 24px;">
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">6 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:89%"></div></div>
+          <span class="nut-value" style="">2073</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">153g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 69g</span><span class="macro-pill macro-c">Carbs 198g</span><span class="tl-badge badge-gray">Leg Day 346 kcal ars</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">7 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:90%"></div></div>
+          <span class="nut-value" style="">2094</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">159g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 66g</span><span class="macro-pill macro-c">Carbs 196g</span><span class="tl-badge badge-gray">Cycling 472 kcal ars</span><span class="tl-badge badge-gray">duplicat eliminat</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">8 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:89%"></div></div>
+          <span class="nut-value" style="">2083</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:56%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">71g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="background:#fff5f5;color:#c53030;">Grasimi 98g  ⚠</span><span class="macro-pill macro-c">Carbs 169g</span><span class="tl-badge badge-gray">Snack 904 kcal - 46g grasimi 0g proteina</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">9 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:95%"></div></div>
+          <span class="nut-value" style="">2210</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:96%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">120g ✓</span>
+        </div><div><span class="macro-pill macro-f" style="background:#fff5f5;color:#c53030;">Grasimi 93g  ⚠</span><span class="macro-pill macro-c">Carbs 169g</span><span class="tl-badge badge-gray">Push Day 408 kcal ars</span><span class="tl-badge badge-gray">Snack 647 kcal</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">10 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:65%"></div></div>
+          <span class="nut-value" style="">1523</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:54%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">68g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 52g</span><span class="macro-pill macro-c">Carbs 118g</span><span class="tl-badge badge-gray">Fara antrenament</span><span class="tl-badge badge-gray">duplicat eliminat</span></div></div></div>
+    <div class="nutrition-day" style="border-left: 3px solid #e2e8f0; padding-left: 8px; margin-left: -8px;">
+      <div class="nut-date" style="color:#a0aec0;">11 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:33%"></div></div>
+          <span class="nut-value" style="">786</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:17%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">22g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 24g</span><span class="macro-pill macro-c">Carbs 130g</span><span class="tl-badge badge-gray">Cel mai slab aport proteic</span><span class="tl-badge badge-gray">posibil log incomplet</span></div></div></div>
+    <div class="nutrition-day" style="border-left: 3px solid #e2e8f0; padding-left: 8px; margin-left: -8px;">
+      <div class="nut-date" style="color:#a0aec0;">12 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:48%"></div></div>
+          <span class="nut-value" style="">1124</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:38%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">48g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 61g</span><span class="macro-pill macro-c">Carbs 92g</span><span class="tl-badge badge-gray">Mic dejun la 4:25 PM - program inversat</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">13 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:73%"></div></div>
+          <span class="nut-value" style="">1712</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:55%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">69g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 74g</span><span class="macro-pill macro-c">Carbs 192g</span><span class="tl-badge badge-gray">Revenire la aport decent</span></div></div></div>
+    <div class="nutrition-day" style="border-left: 3px solid #e2e8f0; padding-left: 8px; margin-left: -8px;">
+      <div class="nut-date" style="color:#a0aec0;">14 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:14%"></div></div>
+          <span class="nut-value" style="color:#a0aec0;">335</span>
+        </div><div><span class="tl-badge badge-gray">Doar micul dejun logat - date incomplete</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">15 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:77%"></div></div>
+          <span class="nut-value" style="">1807</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">159g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 62g</span><span class="macro-pill macro-c">Carbs 149g</span><span class="tl-badge badge-gray">La coasa Walk 533 kcal ars</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">16 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:79%"></div></div>
+          <span class="nut-value" style="">1848</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">192g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 58g</span><span class="macro-pill macro-c">Carbs 138g</span><span class="tl-badge badge-gray">Pull Day 448 kcal ars</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">17 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:78%"></div></div>
+          <span class="nut-value" style="">1825</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">158g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 61g</span><span class="macro-pill macro-c">Carbs 162g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">18 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:75%"></div></div>
+          <span class="nut-value" style="">1750</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">151g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 32g</span><span class="macro-pill macro-c">Carbs 253g</span><span class="tl-badge badge-gray">Mic dejun la 4:45 AM - program inversat</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">19 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:78%"></div></div>
+          <span class="nut-value" style="">1827</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">127g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 48g</span><span class="macro-pill macro-c">Carbs 223g</span><span class="tl-badge badge-gray">Pranz 933 kcal</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">20 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:81%"></div></div>
+          <span class="nut-value" style="">1888</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">171g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 31g</span><span class="macro-pill macro-c">Carbs 270g</span><span class="tl-badge badge-gray">Workout 20 Iun 399 kcal ars</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">21 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:73%"></div></div>
+          <span class="nut-value" style="">1706</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">173g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 44g</span><span class="macro-pill macro-c">Carbs 140g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">22 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:93%"></div></div>
+          <span class="nut-value" style="">2170</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">160g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 61g</span><span class="macro-pill macro-c">Carbs 264g</span><span class="tl-badge badge-gray">Pranz 1207 kcal</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">23 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:89%"></div></div>
+          <span class="nut-value" style="">2064</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">178g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 57g</span><span class="macro-pill macro-c">Carbs 212g</span><span class="tl-badge badge-gray">Push Day 368 kcal ars</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">24 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:86%"></div></div>
+          <span class="nut-value" style="">2006</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">138g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 75g</span><span class="macro-pill macro-c">Carbs 231g</span><span class="tl-badge badge-gray">Mic dejun la 5:05 AM - program inversat</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">25 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:99%"></div></div>
+          <span class="nut-value" style="">2313</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">225g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 43g</span><span class="macro-pill macro-c">Carbs 264g</span><span class="tl-badge badge-gray">Leg/Pull Day 457 kcal ars</span><span class="tl-badge badge-gray">record proteina</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">26 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:73%"></div></div>
+          <span class="nut-value" style="">1696</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">147g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 33g</span><span class="macro-pill macro-c">Carbs 215g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">27 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:79%"></div></div>
+          <span class="nut-value" style="">1850</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">191g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 62g</span><span class="macro-pill macro-c">Carbs 150g</span><span class="tl-badge badge-gray">Leg Day 327 kcal ars</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">28 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:100%"></div></div>
+          <span class="nut-value" style="">2317</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">161g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="background:#fff5f5;color:#c53030;">Grasimi 109g  ⚠</span><span class="macro-pill macro-c">Carbs 173g</span><span class="tl-badge badge-gray">Cycling 614 kcal ars</span><span class="tl-badge badge-gray">grasimi ridicate 109g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">29 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:91%"></div></div>
+          <span class="nut-value" style="">2111</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">135g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 66g</span><span class="macro-pill macro-c">Carbs 278g</span><span class="tl-badge badge-gray">Carbs ridicate 278g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">30 Iun</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:71%"></div></div>
+          <span class="nut-value" style="">1658</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:36%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">45g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="background:#fff5f5;color:#c53030;">Grasimi 116g  ⚠</span><span class="macro-pill macro-c">Carbs 134g</span><span class="tl-badge badge-gray">Proteina 46g - cel mai slab</span><span class="tl-badge badge-gray">grasimi 116g (99g din pranz)</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">1 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:73%"></div></div>
+          <span class="nut-value" style="">1714</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">142g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 57g</span><span class="macro-pill macro-c">Carbs 174g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">2 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:73%"></div></div>
+          <span class="nut-value" style="">1693</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:82%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">103g ✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 43g</span><span class="macro-pill macro-c">Carbs 238g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">3 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:62%"></div></div>
+          <span class="nut-value" style="">1451</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">125g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 47g</span><span class="macro-pill macro-c">Carbs 124g</span><span class="tl-badge badge-gray">Cel mai mic aport din saptamana</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">4 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:65%"></div></div>
+          <span class="nut-value" style="">1511</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:81%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">101g ✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 57g</span><span class="macro-pill macro-c">Carbs 151g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">5 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:88%"></div></div>
+          <span class="nut-value" style="">2059</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">136g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="background:#fff5f5;color:#c53030;">Grasimi 90g  ⚠</span><span class="macro-pill macro-c">Carbs 112g</span><span class="tl-badge badge-gray">Grasimi ridicate 90g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">6 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:76%"></div></div>
+          <span class="nut-value" style="">1773</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:77%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">97g ✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 56g</span><span class="macro-pill macro-c">Carbs 199g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">7 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:74%"></div></div>
+          <span class="nut-value" style="">1728</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">162g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 34g</span><span class="macro-pill macro-c">Carbs 212g</span><span class="tl-badge badge-gray">Proteina record</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">8 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:76%"></div></div>
+          <span class="nut-value" style="">1766</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">141g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 36g</span><span class="macro-pill macro-c">Carbs 194g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">9 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:79%"></div></div>
+          <span class="nut-value" style="">1842</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">129g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 45g</span><span class="macro-pill macro-c">Carbs 177g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">10 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:92%"></div></div>
+          <span class="nut-value" style="">2137</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:72%"></div></div>
+          <span class="nut-value" style="color:#ed8936;">90g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="background:#fff5f5;color:#c53030;">Grasimi 117g  ⚠</span><span class="macro-pill macro-c">Carbs 139g</span><span class="tl-badge badge-gray">Grasimi foarte ridicate 118g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">11 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:65%"></div></div>
+          <span class="nut-value" style="">1514</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:80%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">100g ✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 74g</span><span class="macro-pill macro-c">Carbs 102g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">12 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:71%"></div></div>
+          <span class="nut-value" style="">1650</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:52%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">65g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="background:#fff5f5;color:#c53030;">Grasimi 82g  ⚠</span><span class="macro-pill macro-c">Carbs 184g</span><span class="tl-badge badge-gray">Proteina scazuta</span><span class="tl-badge badge-gray">grasimi ridicate 82g</span></div></div></div>
+    <div class="nutrition-day" style="border-left: 3px solid #e2e8f0; padding-left: 8px; margin-left: -8px;">
+      <div class="nut-date" style="color:#a0aec0;">13 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:17%"></div></div>
+          <span class="nut-value" style="color:#a0aec0;">397</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:17%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">22g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 10g</span><span class="macro-pill macro-c">Carbs 71g</span><span class="tl-badge badge-gray">Doar micul dejun logat - date incomplete</span></div></div></div>
+    <div class="nutrition-day" style="border-left: 3px solid #e2e8f0; padding-left: 8px; margin-left: -8px;">
+      <div class="nut-date" style="color:#a0aec0;">14 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:12%"></div></div>
+          <span class="nut-value" style="color:#a0aec0;">298</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:24%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">31g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 17g</span><span class="macro-pill macro-c">Carbs 3g</span><span class="tl-badge badge-gray">Doar micul dejun logat - date incomplete</span></div></div></div>
+    <div class="nutrition-day" style="border-left: 3px solid #e2e8f0; padding-left: 8px; margin-left: -8px;">
+      <div class="nut-date" style="color:#a0aec0;">15 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:38%"></div></div>
+          <span class="nut-value" style="">891</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:17%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">21g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 19g</span><span class="macro-pill macro-c">Carbs 31g</span><span class="tl-badge badge-gray">Log incomplet - proteina foarte slaba</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">16 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:58%"></div></div>
+          <span class="nut-value" style="">1352</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:80%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">100g ✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 34g</span><span class="macro-pill macro-c">Carbs 180g</span></div></div></div>
+    <div class="nutrition-day" style="border-left: 3px solid #e2e8f0; padding-left: 8px; margin-left: -8px;">
+      <div class="nut-date" style="color:#a0aec0;">17 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:29%"></div></div>
+          <span class="nut-value" style="">692</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:40%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">50g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 33g</span><span class="macro-pill macro-c">Carbs 53g</span><span class="tl-badge badge-gray">Log incomplet</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">18 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:72%"></div></div>
+          <span class="nut-value" style="">1688</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:95%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">119g ✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 67g</span><span class="macro-pill macro-c">Carbs 114g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">19 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-blue" style="width:84%"></div></div>
+          <span class="nut-value" style="">1969</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">140g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="background:#fff5f5;color:#c53030;">Grasimi 88g  ⚠</span><span class="macro-pill macro-c">Carbs 146g</span><span class="tl-badge badge-gray">Cycling 512 kcal ars</span><span class="tl-badge badge-gray">grasimi ridicate 88g</span></div></div></div>
+    <div class="nutrition-day" style="border-left: 3px solid #e2e8f0; padding-left: 8px; margin-left: -8px;">
+      <div class="nut-date" style="color:#a0aec0;">20 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:50%"></div></div>
+          <span class="nut-value" style="">1164</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:82%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">103g ✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 20g</span><span class="macro-pill macro-c">Carbs 163g</span><span class="tl-badge badge-gray">Aport caloric scazut</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">21 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:68%"></div></div>
+          <span class="nut-value" style="">1582</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:94%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">117g ✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 47g</span><span class="macro-pill macro-c">Carbs 189g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">22 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:68%"></div></div>
+          <span class="nut-value" style="">1594</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:100%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">130g ✓✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 23g</span><span class="macro-pill macro-c">Carbs 247g</span><span class="tl-badge badge-gray">Carbs ridicate 247g</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">23 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:67%"></div></div>
+          <span class="nut-value" style="">1571</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#48bb78;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-green" style="width:94%"></div></div>
+          <span class="nut-value" style="color:#48bb78;">117g ✓</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 66g</span><span class="macro-pill macro-c">Carbs 153g</span><span class="tl-badge badge-gray">Ride 262 kcal ars</span></div></div></div>
+    <div class="nutrition-day" style="">
+      <div class="nut-date" style="">24 Iul</div>
+      <div class="nut-bar-wrap">
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#4299e1;">kcal</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-orange" style="width:74%"></div></div>
+          <span class="nut-value" style="">1728</span>
+        </div>
+        <div class="nut-bar-row">
+          <span class="nut-label" style="color:#ed8936;">Prot</span>
+          <div class="nut-bar-bg"><div class="nut-bar-fill bar-red" style="width:60%"></div></div>
+          <span class="nut-value" style="color:#fc8181;">75g ⚠</span>
+        </div><div><span class="macro-pill macro-f" style="">Grasimi 71g</span><span class="macro-pill macro-c">Carbs 109g</span><span class="tl-badge badge-gray">Proteina scazuta</span></div></div></div>
+    <div style="margin-top:16px;padding:12px 0;border-top:2px solid #edf2f7;
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+      <div>
+        <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px;">Medie kcal/zi</div>
+        <div style="font-size:22px;font-weight:700;color:#2d3748;margin-top:4px;">1728</div>
+        <div style="font-size:12px;color:#718096;">6 Iun–24 Iul 2026 (46 zile complete)</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px;">Medie proteina/zi</div>
+        <div style="font-size:22px;font-weight:700;color:#fc8181;margin-top:4px;">~122g</div>
+        <div style="font-size:12px;color:#718096;">Optim: 91–125g/zi</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px;">Medie grasimi/zi</div>
+        <div style="font-size:22px;font-weight:700;color:#ed8936;margin-top:4px;">~59g</div>
+        <div style="font-size:12px;color:#718096;">Unele zile ridicate</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px;">Medie carbs/zi</div>
+        <div style="font-size:22px;font-weight:700;color:#48bb78;margin-top:4px;">~172g</div>
+        <div style="font-size:12px;color:#718096;">In limite normale</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px;">Deficit estimat</div>
+        <div style="font-size:22px;font-weight:700;color:#4299e1;margin-top:4px;">~684 kcal</div>
+        <div style="font-size:12px;color:#718096;">vs TDEE ~2413 kcal/zi</div>
+      </div>
+    </div></div>
+  <div class="section-title blue">Activitati fizice — 10 Mai–25 Iul</div><div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">16 May 2026</div>
+      <div class="tl-title">La magazinul satesc — 16.2 min · 2.02 km · ↑17m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">118 kcal</span><span class="tl-badge badge-orange">RE 5</span><span class="tl-badge badge-blue">Cadenta 70.9 rpm</span><span class="tl-badge badge-green">3 PR-uri 🏆</span><span class="tl-badge badge-gray">15 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">W</div>
+      <div class="tl-date">16 May 2026</div>
+      <div class="tl-title">Evening Walk — 23.1 min · 1.50 km · ↑44m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">108 kcal</span><span class="tl-badge badge-orange">RE 3</span><span class="tl-badge badge-blue">Cadenta 46.9 rpm</span><span class="tl-badge badge-gray">15 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">17 May 2026</div>
+      <div class="tl-title">Pfai... mai stiu sa pedalez — 32.7 min · 5.48 km · ↑104m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">297 kcal</span><span class="tl-badge badge-orange">RE 32</span><span class="tl-badge badge-blue">Cadenta 66.9 rpm</span><span class="tl-badge badge-green">3 PR-uri 🏆</span><span class="tl-badge badge-gray">21 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">19 May 2026</div>
+      <div class="tl-title">Cand te duci sa cumperi inghetata... — 17.5 min · 3.25 km · ↑82m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">319 kcal</span><span class="tl-badge badge-orange">RE 35</span><span class="tl-badge badge-blue">Cadenta 73.8 rpm</span><span class="tl-badge badge-green">3 PR-uri 🏆</span><span class="tl-badge badge-gray">16 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">20 May 2026</div>
+      <div class="tl-title">Cand catelul vrea piept de pui cu orez prefiert... — 43.5 min · 13.17 km · ↑113m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">322 kcal</span><span class="tl-badge badge-orange">RE 78</span><span class="tl-badge badge-blue">Cadenta 70.6 rpm</span><span class="tl-badge badge-green">19 PR-uri 🏆</span><span class="tl-badge badge-gray">16 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">22 May 2026</div>
+      <div class="tl-title">Cand ai de rezolvat ceva urgente, iei bicicleta... — 42.4 min · 9.70 km · ↑42m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">356 kcal</span><span class="tl-badge badge-orange">RE 46</span><span class="tl-badge badge-blue">Cadenta 70.1 rpm</span><span class="tl-badge badge-green">2 PR-uri 🏆</span><span class="tl-badge badge-gray">18 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">23 May 2026</div>
+      <div class="tl-title">Pe la noi, prin sat — 50.3 min · 15.74 km · ↑137m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">352 kcal</span><span class="tl-badge badge-orange">RE 50</span><span class="tl-badge badge-blue">Cadenta 72.5 rpm</span><span class="tl-badge badge-green">19 PR-uri 🏆</span><span class="tl-badge badge-gray">16 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">24 May 2026</div>
+      <div class="tl-title">Din nou, prin sat — 48.9 min · 15.43 km · ↑136m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">342 kcal</span><span class="tl-badge badge-orange">RE 55</span><span class="tl-badge badge-blue">Cadenta 72.9 rpm</span><span class="tl-badge badge-green">17 PR-uri 🏆</span><span class="tl-badge badge-orange">18 achievements</span><span class="tl-badge badge-gray">18 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot training">T</div>
+      <div class="tl-date">26 May 2026</div>
+      <div class="tl-title">Din nou, la sala — 34.1 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">166 kcal</span><span class="tl-badge badge-orange">RE 6</span><span class="tl-badge badge-orange">2 achievements</span><span class="tl-badge badge-gray">14 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot training">T</div>
+      <div class="tl-date">28 May 2026</div>
+      <div class="tl-title">Morning Weight Training — 34.4 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">221 kcal</span><span class="tl-badge badge-orange">RE 11</span><span class="tl-badge badge-orange">3 achievements</span><span class="tl-badge badge-gray">13 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">W</div>
+      <div class="tl-date">31 May 2026</div>
+      <div class="tl-title">Evening Walk — 25.0 min · 1.72 km · ↑31m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">115 kcal</span><span class="tl-badge badge-orange">RE 3</span><span class="tl-badge badge-blue">Cadenta 47.6 rpm</span><span class="tl-badge badge-gray">12 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">01 June 2026</div>
+      <div class="tl-title">New toy, new PR — 44.5 min · 15.39 km · ↑137m</div>
+      <div class="tl-meta">🚴⬆️ 2026 = 982 m</div>
+      <div><span class="tl-badge badge-green">350 kcal</span><span class="tl-badge badge-blue">FC med 144 bpm</span><span class="tl-badge badge-red">FC max 181 bpm</span><span class="tl-badge badge-orange">RE 68</span><span class="tl-badge badge-blue">Cadenta 74.9 rpm</span><span class="tl-badge badge-blue">108W avg</span><span class="tl-badge badge-green">20 PR-uri 🏆</span><span class="tl-badge badge-orange">22 achievements</span><span class="tl-badge badge-gray">19 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">M</div>
+      <div class="tl-date">02 June 2026</div>
+      <div class="tl-title">Workout 02 Jun — 76.7 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">413 kcal</span><span class="tl-badge badge-blue">FC med 119 bpm</span><span class="tl-badge badge-red">FC max 157 bpm</span><span class="tl-badge badge-orange">RE 24</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot training">T</div>
+      <div class="tl-date">02 June 2026</div>
+      <div class="tl-title">Push Day — 76.7 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">413 kcal</span><span class="tl-badge badge-blue">FC med 119 bpm</span><span class="tl-badge badge-red">FC max 157 bpm</span><span class="tl-badge badge-orange">RE 22</span><span class="tl-badge badge-gray">8 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">M</div>
+      <div class="tl-date">04 June 2026</div>
+      <div class="tl-title">Workout 04 Jun — 78.2 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">467 kcal</span><span class="tl-badge badge-blue">FC med 124 bpm</span><span class="tl-badge badge-red">FC max 175 bpm</span><span class="tl-badge badge-orange">RE 38</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot training">T</div>
+      <div class="tl-date">04 June 2026</div>
+      <div class="tl-title">Pull Day — 78.2 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">467 kcal</span><span class="tl-badge badge-blue">FC med 124 bpm</span><span class="tl-badge badge-red">FC max 175 bpm</span><span class="tl-badge badge-orange">RE 29</span><span class="tl-badge badge-orange">1 achievements</span><span class="tl-badge badge-gray">13 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">M</div>
+      <div class="tl-date">06 June 2026</div>
+      <div class="tl-title">Workout 06 Jun — 49.3 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">346 kcal</span><span class="tl-badge badge-blue">FC med 128 bpm</span><span class="tl-badge badge-red">FC max 170 bpm</span><span class="tl-badge badge-orange">RE 51</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot training">T</div>
+      <div class="tl-date">06 June 2026</div>
+      <div class="tl-title">Leg Day — 49.3 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">346 kcal</span><span class="tl-badge badge-blue">FC med 128 bpm</span><span class="tl-badge badge-red">FC max 170 bpm</span><span class="tl-badge badge-orange">RE 28</span><span class="tl-badge badge-gray">12 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">07 June 2026</div>
+      <div class="tl-title">Ride 07 Jun — 55.9 min · 18.46 km · ↑218m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">472 kcal</span><span class="tl-badge badge-blue">FC med 149 bpm</span><span class="tl-badge badge-red">FC max 185 bpm</span><span class="tl-badge badge-orange">RE 145</span><span class="tl-badge badge-blue">Cadenta 77.0 rpm</span><span class="tl-badge badge-blue">118W avg</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">07 June 2026</div>
+      <div class="tl-title">Remetea.2 - Rasaritului climbs — 56.0 min · 18.46 km · ↑218m</div>
+      <div class="tl-meta">🚴⬆️ 2026 = 1,200 m</div>
+      <div><span class="tl-badge badge-green">472 kcal</span><span class="tl-badge badge-blue">FC med 149 bpm</span><span class="tl-badge badge-red">FC max 185 bpm</span><span class="tl-badge badge-orange">RE 105</span><span class="tl-badge badge-blue">Cadenta 77.9 rpm</span><span class="tl-badge badge-blue">117W avg</span><span class="tl-badge badge-green">26 PR-uri 🏆</span><span class="tl-badge badge-orange">28 achievements</span><span class="tl-badge badge-gray">24 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">M</div>
+      <div class="tl-date">09 June 2026</div>
+      <div class="tl-title">Workout 09 Jun — 77.4 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">408 kcal</span><span class="tl-badge badge-blue">FC med 117 bpm</span><span class="tl-badge badge-red">FC max 152 bpm</span><span class="tl-badge badge-orange">RE 19</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot training">T</div>
+      <div class="tl-date">09 June 2026</div>
+      <div class="tl-title">Push Day — 77.4 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">408 kcal</span><span class="tl-badge badge-blue">FC med 117 bpm</span><span class="tl-badge badge-red">FC max 152 bpm</span><span class="tl-badge badge-orange">RE 20</span><span class="tl-badge badge-gray">14 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">W</div>
+      <div class="tl-date">15 June 2026</div>
+      <div class="tl-title">Walk 15 Jun — 168.6 min · 2.88 km · ↑27m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">533 kcal</span><span class="tl-badge badge-blue">FC med 91 bpm</span><span class="tl-badge badge-red">FC max 137 bpm</span><span class="tl-badge badge-orange">RE 7</span><span class="tl-badge badge-blue">Cadenta 4.0 rpm</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">W</div>
+      <div class="tl-date">15 June 2026</div>
+      <div class="tl-title">La coasa Walk — 90.9 min · 2.88 km · ↑27m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">533 kcal</span><span class="tl-badge badge-blue">FC med 92 bpm</span><span class="tl-badge badge-red">FC max 137 bpm</span><span class="tl-badge badge-orange">RE 12</span><span class="tl-badge badge-blue">Cadenta 52.2 rpm</span><span class="tl-badge badge-orange">2 achievements</span><span class="tl-badge badge-gray">3 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">M</div>
+      <div class="tl-date">16 June 2026</div>
+      <div class="tl-title">Workout 16 Jun — 87.2 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">448 kcal</span><span class="tl-badge badge-blue">FC med 117 bpm</span><span class="tl-badge badge-red">FC max 166 bpm</span><span class="tl-badge badge-orange">RE 24</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot training">T</div>
+      <div class="tl-date">16 June 2026</div>
+      <div class="tl-title">Pull Day — 87.2 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">448 kcal</span><span class="tl-badge badge-blue">FC med 117 bpm</span><span class="tl-badge badge-red">FC max 166 bpm</span><span class="tl-badge badge-orange">RE 24</span><span class="tl-badge badge-gray">4 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">W</div>
+      <div class="tl-date">19 June 2026</div>
+      <div class="tl-title">La cosit Walk — 57.4 min · 1.92 km · ↑9m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">416 kcal</span><span class="tl-badge badge-blue">FC med 112 bpm</span><span class="tl-badge badge-red">FC max 141 bpm</span><span class="tl-badge badge-orange">RE 12</span><span class="tl-badge badge-blue">Cadenta 61.5 rpm</span><span class="tl-badge badge-gray">11 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">M</div>
+      <div class="tl-date">20 June 2026</div>
+      <div class="tl-title">Workout 20 Jun — 50.6 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">399 kcal</span><span class="tl-badge badge-blue">FC med 136 bpm</span><span class="tl-badge badge-red">FC max 170 bpm</span><span class="tl-badge badge-orange">RE 77</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">21 June 2026</div>
+      <div class="tl-title">Z2 HR Ride — 57.5 min · 19.88 km · ↑87m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">391 kcal</span><span class="tl-badge badge-blue">FC med 131 bpm</span><span class="tl-badge badge-red">FC max 149 bpm</span><span class="tl-badge badge-orange">RE 42</span><span class="tl-badge badge-blue">Cadenta 80.3 rpm</span><span class="tl-badge badge-blue">90W avg</span><span class="tl-badge badge-green">4 PR-uri 🏆</span><span class="tl-badge badge-gray">22 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">W</div>
+      <div class="tl-date">21 June 2026</div>
+      <div class="tl-title">Evening Walk — 20.6 min · 0.99 km · ↑34m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">112 kcal</span><span class="tl-badge badge-blue">FC med 92 bpm</span><span class="tl-badge badge-red">FC max 118 bpm</span><span class="tl-badge badge-orange">RE 2</span><span class="tl-badge badge-blue">Cadenta 46.9 rpm</span><span class="tl-badge badge-gray">13 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">M</div>
+      <div class="tl-date">23 June 2026</div>
+      <div class="tl-title">Workout 23 Jun — 72.8 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">368 kcal</span><span class="tl-badge badge-blue">FC med 115 bpm</span><span class="tl-badge badge-red">FC max 147 bpm</span><span class="tl-badge badge-orange">RE 11</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">M</div>
+      <div class="tl-date">25 June 2026</div>
+      <div class="tl-title">Workout 25 Jun — 75.0 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">457 kcal</span><span class="tl-badge badge-blue">FC med 127 bpm</span><span class="tl-badge badge-red">FC max 162 bpm</span><span class="tl-badge badge-orange">RE 43</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">M</div>
+      <div class="tl-date">27 June 2026</div>
+      <div class="tl-title">Workout 27 Jun — 48.8 min</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">327 kcal</span><span class="tl-badge badge-blue">FC med 126 bpm</span><span class="tl-badge badge-red">FC max 172 bpm</span><span class="tl-badge badge-orange">RE 46</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">28 June 2026</div>
+      <div class="tl-title">Ride 28 Jun — 73.2 min · 26.44 km · ↑239m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">614 kcal</span><span class="tl-badge badge-blue">FC med 150 bpm</span><span class="tl-badge badge-red">FC max 180 bpm</span><span class="tl-badge badge-orange">RE 156</span><span class="tl-badge badge-blue">Cadenta 81.0 rpm</span><span class="tl-badge badge-blue">117W avg</span></div>
+    </div>
+    <div class="tl-item" style="opacity:0.6;">
+      <div class="tl-dot morning" style="font-size:9px;background:#e2e8f0;">M</div>
+      <div class="tl-date">30 Iun–15 Iul — pauza antrenament</div>
+      <div class="tl-title" style="color:#a0aec0;">14× Morning Workout (rutine scurte)</div>
+      <div class="tl-meta" style="color:#a0aec0;">Durata: sub 1 minut fiecare · cateva kcal / sesiune · Zero antrenament real.</div>
+      <div style="margin-top:6px;"><span class="tl-badge badge-gray">30 Iun: 45s / 3 kcal</span> <span class="tl-badge badge-gray">1 Iul: 47s / 2 kcal</span> <span class="tl-badge badge-gray">2 Iul: 53s / 2 kcal</span> <span class="tl-badge badge-gray">3 Iul: 48s / 4 kcal</span> <span class="tl-badge badge-gray">4 Iul: 50s / 5 kcal</span> <span class="tl-badge badge-gray">5 Iul: 47s / 1 kcal</span> <span class="tl-badge badge-gray">6 Iul: 40s / 2 kcal</span> <span class="tl-badge badge-gray">7 Iul: 44s / 2 kcal</span> <span class="tl-badge badge-gray">8 Iul: 52s / 2 kcal</span> <span class="tl-badge badge-gray">9 Iul: 53s / 5 kcal</span> <span class="tl-badge badge-gray">10 Iul: 39s / 2 kcal</span> <span class="tl-badge badge-gray">13 Iul: 43s / 4 kcal</span> <span class="tl-badge badge-gray">14 Iul: 43s / 4 kcal</span> <span class="tl-badge badge-gray">15 Iul: 45s / 2 kcal</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">W</div>
+      <div class="tl-date">16 July 2026</div>
+      <div class="tl-title">Evening Walk — 13.1 min · 0.76 km · ↑22m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">68 kcal</span><span class="tl-badge badge-blue">FC med 90 bpm</span><span class="tl-badge badge-red">FC max 117 bpm</span><span class="tl-badge badge-orange">RE 1</span><span class="tl-badge badge-blue">Cadenta 46.2 rpm</span><span class="tl-badge badge-gray">16 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">19 July 2026</div>
+      <div class="tl-title">Ride 19 Jul — 70.1 min · 26.05 km · ↑81m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">512 kcal</span><span class="tl-badge badge-blue">FC med 145 bpm</span><span class="tl-badge badge-red">FC max 160 bpm</span><span class="tl-badge badge-orange">RE 68</span><span class="tl-badge badge-blue">Cadenta 76.0 rpm</span><span class="tl-badge badge-blue">99W avg</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot morning">W</div>
+      <div class="tl-date">21 July 2026</div>
+      <div class="tl-title">La cosit Walk — 67.7 min · 2.51 km · ↑10m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">425 kcal</span><span class="tl-badge badge-blue">FC med 87 bpm</span><span class="tl-badge badge-red">FC max 131 bpm</span><span class="tl-badge badge-orange">RE 8</span><span class="tl-badge badge-blue">Cadenta 57.2 rpm</span><span class="tl-badge badge-orange">1 achievements</span><span class="tl-badge badge-gray">11 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">23 July 2026</div>
+      <div class="tl-title">A tour of my village — 35.8 min · 10.75 km · ↑117m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">262 kcal</span><span class="tl-badge badge-blue">FC med 134 bpm</span><span class="tl-badge badge-red">FC max 171 bpm</span><span class="tl-badge badge-orange">RE 36</span><span class="tl-badge badge-blue">Cadenta 66.4 rpm</span><span class="tl-badge badge-blue">100W avg</span><span class="tl-badge badge-green">2 PR-uri 🏆</span><span class="tl-badge badge-gray">17 kudos</span></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot cycling">C</div>
+      <div class="tl-date">25 July 2026</div>
+      <div class="tl-title">Remetea Ride — 56.9 min · 19.68 km · ↑208m</div>
+      <div class="tl-meta"></div>
+      <div><span class="tl-badge badge-green">458 kcal</span><span class="tl-badge badge-blue">FC med 146 bpm</span><span class="tl-badge badge-red">FC max 179 bpm</span><span class="tl-badge badge-orange">RE 97</span><span class="tl-badge badge-blue">Cadenta 75.2 rpm</span><span class="tl-badge badge-blue">110W avg</span><span class="tl-badge badge-green">9 PR-uri 🏆</span><span class="tl-badge badge-gray">11 kudos</span></div>
+    </div></div>
+  <div class="section-title blue">Rezumat sesiuni reale</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th><th>Sport</th><th>Durata</th><th>Calorii</th>
+          <th>FC medie</th><th>FC max</th><th>Efort rel.</th><th>Distanta / Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>16 Mai 2026</td>
+          <td>La magazinul satesc</td>
+          <td>16.2 min</td>
+          <td>118</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 5</td>
+          <td>2.02 km · 3 PR</td>
+        </tr>
+        <tr>
+          <td>16 Mai 2026</td>
+          <td>Evening Walk</td>
+          <td>23.1 min</td>
+          <td>108</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 3</td>
+          <td>1.50 km</td>
+        </tr>
+        <tr>
+          <td>17 Mai 2026</td>
+          <td>Pfai... mai stiu sa pedalez</td>
+          <td>32.7 min</td>
+          <td>297</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 32</td>
+          <td>5.48 km · 3 PR</td>
+        </tr>
+        <tr>
+          <td>19 Mai 2026</td>
+          <td>Cand te duci sa cumperi inghetata...</td>
+          <td>17.5 min</td>
+          <td>319</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 35</td>
+          <td>3.25 km · 3 PR</td>
+        </tr>
+        <tr>
+          <td>20 Mai 2026</td>
+          <td>Cand catelul vrea piept de pui cu orez prefiert...</td>
+          <td>43.5 min</td>
+          <td>322</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 78</td>
+          <td>13.17 km · 19 PR</td>
+        </tr>
+        <tr>
+          <td>22 Mai 2026</td>
+          <td>Cand ai de rezolvat ceva urgente, iei bicicleta...</td>
+          <td>42.4 min</td>
+          <td>356</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 46</td>
+          <td>9.70 km · 2 PR</td>
+        </tr>
+        <tr>
+          <td>23 Mai 2026</td>
+          <td>Pe la noi, prin sat</td>
+          <td>50.3 min</td>
+          <td>352</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 50</td>
+          <td>15.74 km · 19 PR</td>
+        </tr>
+        <tr>
+          <td>24 Mai 2026</td>
+          <td>Din nou, prin sat</td>
+          <td>48.9 min</td>
+          <td>342</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 55</td>
+          <td>15.43 km · 17 PR</td>
+        </tr>
+        <tr>
+          <td>26 Mai 2026</td>
+          <td>Din nou, la sala</td>
+          <td>34.1 min</td>
+          <td>166</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 6</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>28 Mai 2026</td>
+          <td>Morning Weight Training</td>
+          <td>34.4 min</td>
+          <td>221</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 11</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>31 Mai 2026</td>
+          <td>Evening Walk</td>
+          <td>25.0 min</td>
+          <td>115</td>
+          <td>—</td>
+          <td>—</td>
+          <td>RE 3</td>
+          <td>1.72 km</td>
+        </tr>
+        <tr>
+          <td>1 Iun 2026</td>
+          <td>New toy, new PR</td>
+          <td>44.5 min</td>
+          <td>350</td>
+          <td><div class="bar-wrap">144 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:71%"></div></div></div></td>
+          <td>181</td>
+          <td>RE 68</td>
+          <td>15.39 km · 20 PR</td>
+        </tr>
+        <tr>
+          <td>2 Iun 2026</td>
+          <td>Workout 02 Jun</td>
+          <td>76.7 min</td>
+          <td>413</td>
+          <td><div class="bar-wrap">119 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:59%"></div></div></div></td>
+          <td>157</td>
+          <td>RE 24</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>2 Iun 2026</td>
+          <td>Push Day</td>
+          <td>76.7 min</td>
+          <td>413</td>
+          <td><div class="bar-wrap">119 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:59%"></div></div></div></td>
+          <td>157</td>
+          <td>RE 22</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>4 Iun 2026</td>
+          <td>Workout 04 Jun</td>
+          <td>78.2 min</td>
+          <td>467</td>
+          <td><div class="bar-wrap">124 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:62%"></div></div></div></td>
+          <td>175</td>
+          <td>RE 38</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>4 Iun 2026</td>
+          <td>Pull Day</td>
+          <td>78.2 min</td>
+          <td>467</td>
+          <td><div class="bar-wrap">124 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:62%"></div></div></div></td>
+          <td>175</td>
+          <td>RE 29</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>6 Iun 2026</td>
+          <td>Workout 06 Jun</td>
+          <td>49.3 min</td>
+          <td>346</td>
+          <td><div class="bar-wrap">128 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:64%"></div></div></div></td>
+          <td>170</td>
+          <td>RE 51</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>6 Iun 2026</td>
+          <td>Leg Day</td>
+          <td>49.3 min</td>
+          <td>346</td>
+          <td><div class="bar-wrap">128 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:63%"></div></div></div></td>
+          <td>170</td>
+          <td>RE 28</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>7 Iun 2026</td>
+          <td>Ride 07 Jun</td>
+          <td>55.9 min</td>
+          <td>472</td>
+          <td><div class="bar-wrap">149 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:74%"></div></div></div></td>
+          <td>185</td>
+          <td>RE 145</td>
+          <td>18.46 km</td>
+        </tr>
+        <tr>
+          <td>7 Iun 2026</td>
+          <td>Remetea.2 - Rasaritului climbs</td>
+          <td>56.0 min</td>
+          <td>472</td>
+          <td><div class="bar-wrap">149 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:74%"></div></div></div></td>
+          <td>185</td>
+          <td>RE 105</td>
+          <td>18.46 km · 26 PR</td>
+        </tr>
+        <tr>
+          <td>9 Iun 2026</td>
+          <td>Workout 09 Jun</td>
+          <td>77.4 min</td>
+          <td>408</td>
+          <td><div class="bar-wrap">117 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:58%"></div></div></div></td>
+          <td>152</td>
+          <td>RE 19</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>9 Iun 2026</td>
+          <td>Push Day</td>
+          <td>77.4 min</td>
+          <td>408</td>
+          <td><div class="bar-wrap">117 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:58%"></div></div></div></td>
+          <td>152</td>
+          <td>RE 20</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>15 Iun 2026</td>
+          <td>Walk 15 Jun</td>
+          <td>168.6 min</td>
+          <td>533</td>
+          <td><div class="bar-wrap">91 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:45%"></div></div></div></td>
+          <td>137</td>
+          <td>RE 7</td>
+          <td>2.88 km</td>
+        </tr>
+        <tr>
+          <td>15 Iun 2026</td>
+          <td>La coasa Walk</td>
+          <td>90.9 min</td>
+          <td>533</td>
+          <td><div class="bar-wrap">92 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:46%"></div></div></div></td>
+          <td>137</td>
+          <td>RE 12</td>
+          <td>2.88 km</td>
+        </tr>
+        <tr>
+          <td>16 Iun 2026</td>
+          <td>Workout 16 Jun</td>
+          <td>87.2 min</td>
+          <td>448</td>
+          <td><div class="bar-wrap">117 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:58%"></div></div></div></td>
+          <td>166</td>
+          <td>RE 24</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>16 Iun 2026</td>
+          <td>Pull Day</td>
+          <td>87.2 min</td>
+          <td>448</td>
+          <td><div class="bar-wrap">117 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:58%"></div></div></div></td>
+          <td>166</td>
+          <td>RE 24</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>19 Iun 2026</td>
+          <td>La cosit Walk</td>
+          <td>57.4 min</td>
+          <td>416</td>
+          <td><div class="bar-wrap">112 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:55%"></div></div></div></td>
+          <td>141</td>
+          <td>RE 12</td>
+          <td>1.92 km</td>
+        </tr>
+        <tr>
+          <td>20 Iun 2026</td>
+          <td>Workout 20 Jun</td>
+          <td>50.6 min</td>
+          <td>399</td>
+          <td><div class="bar-wrap">136 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:68%"></div></div></div></td>
+          <td>170</td>
+          <td>RE 77</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>21 Iun 2026</td>
+          <td>Z2 HR Ride</td>
+          <td>57.5 min</td>
+          <td>391</td>
+          <td><div class="bar-wrap">131 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:65%"></div></div></div></td>
+          <td>149</td>
+          <td>RE 42</td>
+          <td>19.88 km · 4 PR</td>
+        </tr>
+        <tr>
+          <td>21 Iun 2026</td>
+          <td>Evening Walk</td>
+          <td>20.6 min</td>
+          <td>112</td>
+          <td><div class="bar-wrap">92 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:45%"></div></div></div></td>
+          <td>118</td>
+          <td>RE 2</td>
+          <td>0.99 km</td>
+        </tr>
+        <tr>
+          <td>23 Iun 2026</td>
+          <td>Workout 23 Jun</td>
+          <td>72.8 min</td>
+          <td>368</td>
+          <td><div class="bar-wrap">115 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:57%"></div></div></div></td>
+          <td>147</td>
+          <td>RE 11</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>25 Iun 2026</td>
+          <td>Workout 25 Jun</td>
+          <td>75.0 min</td>
+          <td>457</td>
+          <td><div class="bar-wrap">127 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:63%"></div></div></div></td>
+          <td>162</td>
+          <td>RE 43</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>27 Iun 2026</td>
+          <td>Workout 27 Jun</td>
+          <td>48.8 min</td>
+          <td>327</td>
+          <td><div class="bar-wrap">126 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:63%"></div></div></div></td>
+          <td>172</td>
+          <td>RE 46</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>28 Iun 2026</td>
+          <td>Ride 28 Jun</td>
+          <td>73.2 min</td>
+          <td>614</td>
+          <td><div class="bar-wrap">150 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:75%"></div></div></div></td>
+          <td>180</td>
+          <td>RE 156</td>
+          <td>26.44 km</td>
+        </tr>
+        <tr>
+          <td>16 Iul 2026</td>
+          <td>Evening Walk</td>
+          <td>13.1 min</td>
+          <td>68</td>
+          <td><div class="bar-wrap">90 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:44%"></div></div></div></td>
+          <td>117</td>
+          <td>RE 1</td>
+          <td>0.76 km</td>
+        </tr>
+        <tr>
+          <td>19 Iul 2026</td>
+          <td>Ride 19 Jul</td>
+          <td>70.1 min</td>
+          <td>512</td>
+          <td><div class="bar-wrap">145 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:72%"></div></div></div></td>
+          <td>160</td>
+          <td>RE 68</td>
+          <td>26.05 km</td>
+        </tr>
+        <tr>
+          <td>21 Iul 2026</td>
+          <td>La cosit Walk</td>
+          <td>67.7 min</td>
+          <td>425</td>
+          <td><div class="bar-wrap">87 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:43%"></div></div></div></td>
+          <td>131</td>
+          <td>RE 8</td>
+          <td>2.51 km</td>
+        </tr>
+        <tr>
+          <td>23 Iul 2026</td>
+          <td>A tour of my village</td>
+          <td>35.8 min</td>
+          <td>262</td>
+          <td><div class="bar-wrap">134 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:67%"></div></div></div></td>
+          <td>171</td>
+          <td>RE 36</td>
+          <td>10.75 km · 2 PR</td>
+        </tr>
+        <tr>
+          <td>25 Iul 2026</td>
+          <td>Remetea Ride</td>
+          <td>56.9 min</td>
+          <td>458</td>
+          <td><div class="bar-wrap">146 <div class="bar-bg"><div class="bar-fill bar-blue" style="width:73%"></div></div></div></td>
+          <td>179</td>
+          <td>RE 97</td>
+          <td>19.68 km · 9 PR</td>
+        </tr>
+        <tr style="font-weight:700;background:#edf2f7;">
+          <td>TOTAL</td>
+          <td>39 sesiuni reale</td>
+          <td>2220.9 min</td>
+          <td>14049</td>
+          <td>—</td><td>—</td>
+          <td>RE 1539</td>
+          <td>235.08 km</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section-title orange">Correlatii &amp; Interpretari</div><div class="insight-grid">
+    <div class="insight green">
+      <h3>Pauza trecuta de 17 zile (29 Iun–15 Iul) — revenire confirmata</h3>
+      <p>Dupa absenta dintre <strong>29 Iun si 15 Iul</strong>, ai reluat antrenamentele si esti consistent.
+      Mentine ritmul actual pentru a recupera compozitia corporala.</p>
+    </div>
+    <div class="insight green">
+      <h3>Sesiunea de varf: Ride 28 Jun</h3>
+      <p>Cu <strong>RE 156</strong>
+      si FC maxima de 180 bpm,
+      
+      aceasta sesiune demonstreaza capacitate cardiovasculara excelenta. Nivelul aerobic este un atu real.</p>
+    </div></div>
+  <div class="section-title blue">Plan de actiune — Urmatoarele 2 saptamani</div><div class="insight-grid">
+    <div class="insight red">
+      <h3>1. Reia antrenamentul — consecventa 4x/saptamana</h3>
+      <p>Obiectiv realist: <strong>Push + Pull + Legs + 1 Cycling</strong> pe saptamana.
+      Fiecare zi de inactivitate, in combinatie cu un surplus caloric, accelereaza acumularea de grasime.</p>
+    </div>
+    <div class="insight red">
+      <h3>2. Proteina: minimum 91g in fiecare zi</h3>
+      <p>Obiectiv imediat: <strong>≥ 91g proteina zilnic</strong>, indiferent de calorii.
+      Surse recomandate la fiecare masa: oua, piept pui, branza cottage, ton, shake proteic.
+      Nu mai accepta nicio zi sub 100g.</p>
+    </div>
+    <div class="insight orange">
+      <h3>3. Logheza tot ce mananci — onest si complet</h3>
+      <p>Datele actuale sugereaza un log incomplet. Un deficit real nu poate fi gestionat fara
+      date reale. Chiar daca numarul e mare, datele corecte sunt mai valoroase decat datele
+      care "arata bine".</p>
+    </div>
+    <div class="insight green">
+      <h3>4. Mentine ciclismul — cel mai bun instrument cardio</h3>
+      <p>Sesiunile de cycling au generat cel mai mare efort relativ si PR-uri, cu impact
+      cardiovascular exceptional. O sesiune/saptamana de ciclism compenseaza 2 sesiuni de sala
+      din punct de vedere cardiovascular.</p>
+    </div>
+    <div class="insight purple">
+      <h3>Obiectiv realist: 4–6 saptamani</h3>
+      <p>Cu antrenament consistent 4×/saptamana, proteina ≥91g/zi si log alimentar complet:
+      <strong>Greutate tinta: 77.7 kg</strong> ·
+      Grasime corporala sub <strong>22.0%</strong> ·
+      Body Score revenire la <strong>82</strong>.
+      Sunt realizabile, dar necesita consecventa reala.</p>
+    </div></div>
+</div>
+
+<footer>
+  Raport generat 26 July 2026 · Surse: corp.csv (12 masuratori) · activitati.json (97 activitati Strava) · nutritie.csv (49 zile)
+</footer>
+</body>
+</html>
